@@ -1,0 +1,128 @@
+/* 디자인 시스템 — shadcn/ui 변수 규약 위에 5A 브랜드(오렌지 #FF6611 주색, 네이비 #002060 보조색)를 입힌다.
+   바탕은 차분한 따뜻한 중립색. 작은 글자에는 가독성을 위해 진한 오렌지(--primary-deep)를 쓴다.
+   모든 화면은 Tailwind 유틸리티 + 아래 토큰만 쓴다. (글꼴: 번들된 Pretendard Variable) */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.75rem;
+
+  --background: #faf7f1;            /* 페이지 (따뜻한 크림) */
+  --foreground: #23272e;
+  --card: #ffffff;
+  --card-foreground: #23272e;
+  --popover: #ffffff;
+  --popover-foreground: #23272e;
+  --primary: #FF6611;               /* 5A 시그니처 오렌지 — 버튼·막대·배지·큰 숫자 */
+  --primary-foreground: #ffffff;
+  --primary-deep: #c84d06;          /* 작은 글자용 진한 오렌지 (밝은 배경 대비 확보) */
+  --navy: #002060;                  /* 5A 보조 네이비 — 제목·1위 표시·집 위치 */
+  --navy-soft: #e6eaf3;
+  --secondary: #ffeadb;             /* 연한 오렌지 (선택 상태·칩) */
+  --secondary-foreground: #a8420a;
+  --muted: #f3eee4;                 /* 가라앉은 크림 */
+  --muted-foreground: #6b717c;
+  --accent: #f3eee4;
+  --accent-foreground: #23272e;
+  --destructive: #b03f3f;
+  --border: #e7e1d5;
+  --input: #d6cfbf;
+  --ring: #FF6611;
+
+  /* 의미색 (상태 표시) */
+  --good: #2f7a4f;
+  --good-soft: #e5f3ea;
+  --warn: #a8690f;
+  --warn-soft: #fbf0d8;
+  --bad: #b03f3f;
+  --bad-soft: #f9e5e5;
+  --info: #3a5f94;
+  --info-soft: #e7eef9;
+  --brand: #FF6611;                 /* = primary (필수 표시 등) */
+  --brand-soft: #ffeadb;
+
+  --chart-1: #FF6611;
+  --chart-2: #002060;
+  --chart-3: #3a5f94;
+  --chart-4: #a8690f;
+  --chart-5: #6b717c;
+}
+
+@theme inline {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-deep: var(--primary-deep);
+  --color-navy: var(--navy);
+  --color-navy-soft: var(--navy-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+
+  --shadow-card: 0 1px 2px rgba(35, 39, 46, 0.05);
+  --shadow-float: 0 10px 30px -14px rgba(35, 39, 46, 0.22);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  [id] {
+    scroll-margin-top: 4.5rem; /* 고정 상단 바 아래로 */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
