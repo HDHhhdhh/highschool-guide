@@ -2,10 +2,10 @@ import { COMPONENT_LABEL, MAIN_COMPS, type CompKey, type Result } from '../engin
 import { Progress } from '@/components/ui/progress';
 
 // 좁은 막대 라벨 칸에 맞춘 짧은 이름 (나머지 화면은 COMPONENT_LABEL 그대로)
-const BAR_LABEL: Record<CompKey, string> = { ...COMPONENT_LABEL, subjFit: '과목 궁합', genderPref: '성별 선호' };
+const BAR_LABEL: Record<CompKey, string> = { ...COMPONENT_LABEL, subjFit: '과목 궁합' };
 
 export function ScoreBars({ r }: { r: Result }) {
-  const keys: CompKey[] = [...MAIN_COMPS, ...(['subjFit', 'genderPref'] as CompKey[]).filter(k => r.comps[k] != null)];
+  const keys: CompKey[] = [...MAIN_COMPS, ...(['subjFit'] as CompKey[]).filter(k => r.comps[k] != null)];
   return (
     <ul className="flex flex-col gap-2" aria-label="관점별 점수">
       {keys.map(k => {

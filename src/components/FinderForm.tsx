@@ -1,13 +1,14 @@
 import { ArrowRight, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { GEO, SCHOOLS } from '../data';
-import { BANDS, SCHOOL_TYPES, STRATEGIES, SUBJECTS, TRACKS, TYPES_NOT_IN_DATA, type BandId, type CommuteWeight, type Gender, type GenderPref, type Strategy, type Subject } from '../engine';
+import { BANDS, SCHOOL_TYPES, STRATEGIES, SUBJECTS, TRACKS, TYPES_NOT_IN_DATA, type BandId, type CommuteWeight, type Strategy, type Subject, type SubjectGrade } from '../engine';
 import { toggleIn, type FinderState } from '../lib/finder';
 import { Chip, FieldBlock, RadioCards } from './form-blocks';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const NONE = '__none';
 
@@ -61,25 +62,39 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
             </Select>
           </FieldBlock>
 
-          <div className="grid grid-cols-1 gap-7 sm:grid-cols-2">
-            <FieldBlock num={3} label="성별">
-              <RadioCards<Gender> label="성별" compact value={f.gender} onChange={v => set('gender', v)} options={[{ value: 'M', title: '남학생' }, { value: 'F', title: '여학생' }]} />
-            </FieldBlock>
-            <FieldBlock num={4} label="학교 성별 선호" hint="비교 대상 39교는 모두 남녀공학이라 순위에 거의 영향이 없습니다.">
-              <RadioCards<GenderPref> label="학교 성별 선호" compact value={f.genderPref} onChange={v => set('genderPref', v)} options={[{ value: 'any', title: '상관없음' }, { value: 'coed', title: '공학 선호' }, { value: 'single', title: '남고·여고' }]} />
-            </FieldBlock>
-          </div>
-
-          <FieldBlock num={5} label="통학 거리 중요도">
+          <FieldBlock num={3} label="통학 거리 중요도">
             <RadioCards<CommuteWeight> label="통학 거리 중요도" compact value={f.commute} onChange={v => set('commute', v)} options={[{ value: 'low', title: '낮음' }, { value: 'mid', title: '보통' }, { value: 'high', title: '높음', desc: '가까운 학교 우대' }]} />
           </FieldBlock>
 
-          <FieldBlock num={6} label="현재 성적대" tag="중학교 내신 기준">
+          <FieldBlock num={4} label="현재 성적대" tag="중학교 내신 기준">
             <RadioCards<BandId> label="현재 성적대" columns={2} value={f.band} onChange={v => set('band', v)}
               options={BANDS.map(b => ({ value: b.id, title: b.label, desc: b.desc, hint: b.hint }))} />
+            <div className="mt-4 rounded-xl border bg-muted/40 p-4">
+              <label htmlFor="detailed-grades" className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-navy">
+                <Checkbox id="detailed-grades" checked={f.detailed} onCheckedChange={v => set('detailed', v === true)} />
+                더 정확하게 · 과목별 성취도 입력 (선택)
+              </label>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">최근 성적표의 국어·수학·영어·사회·과학 A~E를 입력하세요. 켜면 내신 경쟁력은 아래 5과목 기준으로 계산하고, 입학 도전 여부·분석 비중은 위 성적대를 기준으로 판단합니다.</p>
+              {f.detailed && (
+                <div className="mt-3">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    {SUBJECTS.map(subject => (
+                      <div key={subject}>
+                        <label id={`grade-${subject}`} className="mb-1.5 block text-sm font-medium">{subject}</label>
+                        <Select value={String(f.subjectGrades[subject])} onValueChange={v => setF(s => ({ ...s, subjectGrades: { ...s.subjectGrades, [subject]: Number(v) as SubjectGrade } }))}>
+                          <SelectTrigger aria-labelledby={`grade-${subject}`} className="w-full"><SelectValue /></SelectTrigger>
+                          <SelectContent>{['A', 'B', 'C', 'D', 'E'].map((grade, i) => <SelectItem key={grade} value={String(i + 1)}>{grade}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground">A~E를 1~5로 바꿔 동일 비중으로 평균한 뒤 기존 성적대 기준값 사이를 보간합니다. 실제 석차·고교 내신을 환산한 값이 아닌 참고용 추정입니다.</p>
+                </div>
+              )}
+            </div>
           </FieldBlock>
 
-          <FieldBlock num={7} label="강한 과목 · 약한 과목" tag="선택" hint="과목별 성적분포(A~E)가 확보된 학교(현재 운정고 1곳)에서만 궁합을 계산하고, 나머지 학교는 중립 점수로 둡니다.">
+          <FieldBlock num={5} label="강한 과목 · 약한 과목" tag="선택" hint="과목별 성적분포(A~E)가 확보된 학교(현재 운정고 1곳)에서만 궁합을 계산하고, 나머지 학교는 중립 점수로 둡니다.">
             <div className="flex flex-col gap-3">
               {(['strong', 'weak'] as const).map(kind => (
                 <div key={kind} className="grid grid-cols-[4.5rem_1fr] items-center gap-2">
@@ -94,25 +109,25 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
             </div>
           </FieldBlock>
 
-          <FieldBlock num={8} label="희망 계열·학과">
+          <FieldBlock num={6} label="희망 계열·학과">
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="희망 계열">
               {Object.entries(TRACKS).map(([k, t]) => <Chip key={k} role="radio" on={f.track === k} onClick={() => setTrack(k)}>{t.label}</Chip>)}
             </div>
           </FieldBlock>
 
-          <FieldBlock num={9} label="생각하는 입시 전략">
+          <FieldBlock num={7} label="생각하는 입시 전략">
             <RadioCards<Strategy> label="입시 전략" columns={3} value={f.strategy} onChange={v => set('strategy', v)}
               options={(Object.keys(STRATEGIES) as Strategy[]).map(k => ({ value: k, title: STRATEGIES[k].label, desc: STRATEGIES[k].desc }))} />
           </FieldBlock>
 
-          <FieldBlock num={10} label="함께 고려할 학교 유형" tag="선택 · 여러 개" hint={<>일반고는 기본으로 포함됩니다. {TYPES_NOT_IN_DATA}</>}>
+          <FieldBlock num={8} label="함께 고려할 학교 유형" tag="선택 · 여러 개" hint={<>일반고는 기본으로 포함됩니다. {TYPES_NOT_IN_DATA}</>}>
             <div className="flex flex-wrap gap-2" role="group" aria-label="학교 유형">
               <Chip on disabled onClick={() => {}}>일반고 (기본)</Chip>
               {Object.entries(SCHOOL_TYPES).map(([k, t]) => <Chip key={k} on={f.types.includes(k)} hint={t.note} onClick={() => set('types', toggleIn(f.types, k))}>{t.label}</Chip>)}
             </div>
           </FieldBlock>
 
-          <FieldBlock num={11} label="관심 있는 학교" tag="선택 · 여러 개" hint="지역·구역·유형과 상관없이 후보에 넣어 함께 비교합니다. 배정 가능 여부는 결과 카드에 표시됩니다.">
+          <FieldBlock num={9} label="관심 있는 학교" tag="선택 · 여러 개" hint="지역·구역·유형과 상관없이 후보에 넣어 함께 비교합니다. 배정 가능 여부는 결과 카드에 표시됩니다.">
             <Select value={NONE} onValueChange={v => { if (v !== NONE) set('interest', [...f.interest, v]); }}>
               <SelectTrigger aria-label="관심 학교 추가" className="h-12! w-full rounded-lg text-[0.9375rem]"><SelectValue placeholder="학교를 골라 추가" /></SelectTrigger>
               <SelectContent>

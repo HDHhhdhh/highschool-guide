@@ -1,11 +1,13 @@
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
+import { REVIEWS } from '../data';
 import { COMPONENT_LABEL, COURSE_CAVEAT, explain, fmt, scoreBasis, type CompKey, type Profile, type Result } from '../engine';
 import { ScoreBars } from './ScoreBars';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 const tone = {
@@ -24,6 +26,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
   const grade = r.gradeLo == null ? null : r.gradeLo === r.gradeHi ? `${r.gradeLo}등급` : `${r.gradeLo}~${r.gradeHi}등급`;
   const years = Object.keys(s.career || {}).sort();
   const top = rank <= 3;
+  const reviews = REVIEWS.filter(review => review.schoolId === s.id);
 
   return (
     <article
@@ -40,7 +43,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
         <div className="min-w-0">
           <h3 className="text-lg font-bold tracking-tight text-navy">{s.name}</h3>
           <p className="mt-0.5 flex flex-wrap gap-x-2 text-[0.8125rem] text-muted-foreground">
-            <span>{s.sgg}</span><span>· {s.kind}</span><span>· {s.foundation}</span><span>· 남녀공학</span>
+            <span>{s.sgg}</span><span>· {s.kind}</span><span>· {s.foundation}</span>
             {r.dist != null && <span className="tnum">· 약 {r.dist.toFixed(1)}km</span>}
           </p>
         </div>
@@ -67,6 +70,37 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
       <p className="rounded-md bg-muted px-3 py-2 text-[0.8125rem] leading-snug"><b className="font-semibold">배정·전형</b> <span className="text-foreground/80">{r.assign.route}</span></p>
 
       <ScoreBars r={r} />
+
+      <section className="rounded-lg border border-navy/15 bg-secondary/40 px-4 py-3" aria-label={`${s.name} 수학 경쟁력`}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h4 className="text-sm font-semibold text-navy">수학 경쟁력 · 과목 개설 폭</h4>
+          <Badge variant="outline">{r.math.score == null ? '자료 미확보' : `${r.math.score} / 100 · 추정`}</Badge>
+        </div>
+        <p className="mt-2 text-sm leading-relaxed">확인된 과목군: {r.math.offered.join(' · ') || '선택·심화 과목군 미확인'}</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">2026학년도 1·2학년 시간표에서 8개 선택·심화 과목군 중 {r.math.offered.length}개 확인. 개설 폭을 비교하는 참고 지표로 수학 성적·수업의 질을 뜻하지 않으며 추천 총점에 포함하지 않습니다.</p>
+        <p className="mt-2 text-xs leading-relaxed"><b>수학 학업성취도</b>: {r.ach?.core.수학 ? <>{r.ach.label} · 평균 {r.ach.core.수학.avg}점 · A 비율 {r.ach.core.수학.A}% (확보 자료)</> : <span className="text-muted-foreground">수집 예정 · 확인된 수학 성취도 없음</span>}</p>
+      </section>
+
+      <section aria-label={`${s.name} 학부모 후기`} className="rounded-lg border px-4 py-3">
+        <h4 className="mb-2 text-sm font-semibold text-navy">학부모 후기</h4>
+        <Tabs defaultValue="수학">
+          <TabsList aria-label={`${s.name} 후기 분류`}>
+            {(['수학', '비수학'] as const).map(category => <TabsTrigger key={category} value={category}>{category} ({reviews.filter(review => review.category === category).length})</TabsTrigger>)}
+          </TabsList>
+          {(['수학', '비수학'] as const).map(category => {
+            const entries = reviews.filter(review => review.category === category);
+            return <TabsContent key={category} value={category}>
+              {entries.length ? <ul className="flex flex-col gap-3">
+                {entries.map((review, i) => <li key={`${review.source}-${review.date}-${i}`} className="rounded-md bg-muted/50 p-3 text-sm">
+                  <p className="whitespace-pre-wrap break-words leading-relaxed">{review.text}</p>
+                  <p className="mt-2 break-words text-xs text-muted-foreground">출처: {review.source} · <time dateTime={review.date}>{review.date}</time></p>
+                </li>)}
+              </ul> : <p className="rounded-md bg-muted/50 px-3 py-4 text-sm text-muted-foreground">{category} 후기를 수집 중입니다. 아직 등록된 학부모 후기가 없습니다.</p>}
+            </TabsContent>;
+          })}
+        </Tabs>
+        <p className="mt-2 text-xs text-muted-foreground">후기는 개인 경험으로 공시 자료와 구분하며, 추천 점수에 반영하지 않습니다.</p>
+      </section>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {pros.length > 0 && (
@@ -100,6 +134,13 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
                 </div>
               ))}
             </dl>
+          </section>
+
+          <section>
+            <h4 className="mb-2 text-sm font-semibold text-primary-deep">수학 경쟁력 산식 (추정)</h4>
+            <p className="leading-relaxed">미적분, 기하, 확률과 통계, 고급·심화 수학, 고급 대수, 인공지능 수학, 수학과제 탐구, 경제 수학의 8개 과목군을 각각 동일 비중으로 봅니다. 점수 = 확인된 과목군 수 ÷ 8 × 100 (반올림). 같은 군의 여러 과목·분반은 한 번만 셉니다.</p>
+            <p className="mt-1 text-muted-foreground">미확인: {r.math.unconfirmed.join(' · ') || '없음'}. 시간표에서 보이지 않는 것이 미개설을 확정하지는 않습니다. 대학 진학률·전체 면학 점수를 수학 성적의 대용으로 사용하지 않습니다.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{COURSE_CAVEAT}</p>
           </section>
 
           <section>

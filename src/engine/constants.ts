@@ -51,7 +51,6 @@ export const COMPONENT_LABEL: Record<CompKey, string> = {
   track: '희망 계열 적합',
   commute: '통학',
   env: '교육 여건',
-  genderPref: '학교 성별 선호',
   subjFit: '강점·약점 과목 궁합',
 };
 
@@ -62,7 +61,6 @@ export const COMPONENT_HINT: Record<CompKey, string> = {
   track: '희망 계열 핵심 과목의 1·2학년 개설 여부',
   commute: '사는 동네(또는 중학교)에서의 직선거리',
   env: '학급당 학생 수, 교원 1인당 학생 수, 동아리 수, 기간제 비율',
-  genderPref: '공학·단성 선호와의 일치',
   subjFit: '강점·약점 과목과 성적분포의 궁합 (성취도 확보 학교만)',
 };
 

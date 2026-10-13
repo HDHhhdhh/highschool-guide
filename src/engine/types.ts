@@ -25,7 +25,6 @@ export interface School {
   sgg: string; // '일산서구' | '일산동구' | '덕양구' | '파주시'
   address: string;
   foundation: string; // 공립 | 사립
-  gender: string; // 공학 | 남고 | 여고
   kind: Kind;
   homepage: string | null;
   total: number | null;
@@ -61,12 +60,18 @@ export interface School {
 export interface Designation { kind: string; label: string; status: string; year: number | null; evidence: string | null; url: string | null }
 export interface AdmissionInfo { policy: 'goyang' | 'paju'; equalized: boolean; zone: 1 | 2 | null; stages: string[]; note: string | null; source: string | null; year: number | null }
 
-export type Gender = 'M' | 'F';
-export type GenderPref = 'any' | 'coed' | 'single';
 export type CommuteWeight = 'low' | 'mid' | 'high';
 export type Strategy = 'susi' | 'jeongsi' | 'mix';
 export type Subject = '국어' | '수학' | '영어' | '사회' | '과학';
 export type BandId = 1 | 2 | 3 | 4 | 5;
+export type SubjectGrade = 1 | 2 | 3 | 4 | 5; // A~E
+export interface ParentReview {
+  schoolId: string;
+  category: '수학' | '비수학';
+  source: string;
+  date: string; // YYYY-MM-DD
+  text: string;
+}
 
 export interface Point { lat: number; lng: number }
 
@@ -77,10 +82,9 @@ export interface Profile {
   dongName: string | null;
   middleName: string | null;
   middleSgg: string | null; // 출신 중학교 소재 구 (2단계 구역내배정 기준)
-  gender: Gender;
-  genderPref: GenderPref;
   commute: CommuteWeight;
   band: BandId;
+  subjectGrades: Record<Subject, SubjectGrade> | null; // 더 정확하게 입력한 5과목 성취도
   strong: Subject[];
   weak: Subject[];
   track: string;
@@ -89,7 +93,7 @@ export interface Profile {
   interest: string[]; // 관심 학교 id
 }
 
-export type CompKey = 'naesin' | 'peer' | 'adv' | 'track' | 'commute' | 'env' | 'genderPref' | 'subjFit';
+export type CompKey = 'naesin' | 'peer' | 'adv' | 'track' | 'commute' | 'env' | 'subjFit';
 export const MAIN_COMPS: CompKey[] = ['naesin', 'peer', 'adv', 'track', 'commute', 'env'];
 
 export interface Metrics {
@@ -133,6 +137,11 @@ export interface FitNote { good: boolean; k: Subject; text: string }
 export interface SubjectFit { score: number; notes: FitNote[] }
 
 export interface Persona { label: string; desc: string }
+export interface MathCompetitiveness {
+  score: number | null; // 학력 점수가 아니라 선택·심화 과목 개설 폭의 추정 지표
+  offered: string[];
+  unconfirmed: string[];
+}
 
 export interface DataFlags {
   career: boolean; // 졸업생 진로 데이터 유무
@@ -143,6 +152,7 @@ export interface DataFlags {
 
 export interface Result {
   school: School;
+  math: MathCompetitiveness;
   m: Metrics;
   comps: Partial<Record<CompKey, number>>;
   total: number;

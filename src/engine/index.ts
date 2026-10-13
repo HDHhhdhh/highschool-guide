@@ -6,12 +6,11 @@ import type { CompKey, Point, Profile, Result, School } from './types';
 export interface Analysis {
   results: Result[];
   origin: Point | null;
-  excluded: School[];
   rankOf: Map<string, Partial<Record<CompKey, number>>>;
 }
 
 export function analyze(all: School[], p: Profile): Analysis {
-  const { pool, origin, dist, excluded } = buildPool(all, p);
+  const { pool, origin, dist } = buildPool(all, p);
   const results = scorePool(pool, p, dist);
   // 관점별 순위 (점수 근거 표시용)
   const rankOf = new Map<string, Partial<Record<CompKey, number>>>();
@@ -20,7 +19,7 @@ export function analyze(all: School[], p: Profile): Analysis {
     const sorted = results.filter(r => r.comps[k] != null).sort((a, b) => (b.comps[k] ?? 0) - (a.comps[k] ?? 0));
     sorted.forEach((r, i) => { const o = rankOf.get(r.school.id) || {}; o[k] = i + 1; rankOf.set(r.school.id, o); });
   });
-  return { results, origin, excluded, rankOf };
+  return { results, origin, rankOf };
 }
 
 export * from './types';

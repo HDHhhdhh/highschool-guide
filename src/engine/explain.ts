@@ -11,7 +11,7 @@ export function explain(r: Result, p: Profile): { pros: string[]; cons: string[]
   const pros: string[] = [], cons: string[] = [];
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
   const tr0 = TRACKS[p.track] || TRACKS.none;
-  if ((r.comps.naesin ?? 0) >= 60 && r.group === 'general') pros.push(`${band.label}권 학생 기준 예상 내신 ${gradeRange(r)}등급대로, 내신 관리에 유리한 편입니다.`);
+  if ((r.comps.naesin ?? 0) >= 60 && r.group === 'general') pros.push(`${p.subjectGrades ? '입력한 과목별 성취도' : `${band.label}권 학생`} 기준 예상 내신 ${gradeRange(r)}등급대로, 내신 관리에 유리한 편입니다.`);
   // 중점·특색 지정 (학교알리미 공시 문서 제목·학교 공지 기준)
   const kinds = (s.designations || []).map(x => x.kind);
   if (tr0.stem && (s.scienceFocus === true || kinds.includes('과학중점학교'))) pros.push('과학중점학교로 운영 중(2026 운영계획 공시)이라 수학·과학 심화·실험 과정이 두터운 편입니다.');
@@ -55,8 +55,6 @@ export function explain(r: Result, p: Profile): { pros: string[]; cons: string[]
   if (m.dropout != null && m.dropout >= 3.5 && r.group !== 'vocational') cons.push(`${s.dropoutYear}학년도 학업중단율이 ${fmt(m.dropout)}%로 후보군에서 높은 편입니다(전출 제외). 사유는 학교에 확인하세요.`);
   if (r.dist != null && r.dist > 6) cons.push(`통학 거리가 약 ${r.dist.toFixed(1)}km로 멀어 통학 시간을 확인해야 합니다.`);
   if (m.netIn != null && m.netIn < -2) cons.push(`전출 학생이 전입보다 많습니다 (재학생 대비 ${fmt(-m.netIn)}%).`);
-  const gp = p.genderPref || 'any';
-  if (gp === 'single' && s.gender === '공학') cons.push('남녀공학으로, 남고·여고 선호와 다릅니다.');
   if (s.subjects && r.trackMissing.length && r.trackHits.length < r.trackMissing.length) cons.push(`희망 계열 관련 과목 중 ${r.trackMissing.slice(0, 3).join(', ')} 등이 이번 학년도 시간표에 보이지 않습니다.`);
   if (m.univ == null) cons.push('졸업생 진로 데이터가 없어 진학 지표는 중간값으로 계산했습니다.');
   if (!s.subjects && p.track !== 'none' && p.track !== 'job') cons.push('개설 과목 데이터가 없어 계열 적합도는 학교 운영 방식으로만 추정했습니다.');
@@ -75,7 +73,7 @@ export function scoreBasis(r: Result, p: Profile, rankOf: Partial<Record<CompKey
     : `졸업생 4년제+재도전 비율 ${fmt(m.aim)}%·전출입·학생 수 추이 (성적분포 미확보 — 공시 지표 추정)`;
   const b: Record<CompKey, string> = {
     naesin: r.rankTop == null ? '실기 중심 학교라 내신 위치를 추정하지 않음'
-      : `중학교 성적대(${band.desc})와 경쟁 강도(${compSrc})로 본 예상 교내 위치 상위 약 ${Math.round(r.rankTop)}%, 1학년 ${s.stu?.[0] ?? '-'}명` + pos('naesin'),
+      : `${p.subjectGrades ? '입력한 5과목 A~E 동일 비중 평균을 성적대 대표값 사이로 보간(공식 석차 환산 아님)' : `중학교 성적대(${band.desc})`}과 경쟁 강도(${compSrc})로 본 예상 교내 위치 상위 약 ${Math.round(r.rankTop)}%, 1학년 ${s.stu?.[0] ?? '-'}명` + pos('naesin'),
     peer: (a ? '' : '(추정) 직접 측정한 지표가 아님. 추정 근거: ') + compSrc + (!a && m.dropout != null && r.group === 'general' ? ` + 학업중단율 ${fmt(m.dropout)}%(보조)` : '') + pos('peer'),
     adv: r.group === 'vocational' ? '직업계 학교라 중립값' : m.univ == null ? '졸업생 진로 데이터 없음(중간값)'
       : `최근 ${Object.keys(s.career || {}).length}년 평균 4년제 진학 ${fmt(m.univ)}%, 4년제+재도전 ${fmt(m.aim)}%` + pos('adv'),
@@ -85,7 +83,6 @@ export function scoreBasis(r: Result, p: Profile, rankOf: Partial<Record<CompKey
     commute: r.dist == null ? '거리 정보 없음' : `직선거리 ${r.dist.toFixed(1)}km` + pos('commute'),
     env: `학급당 ${fmt(m.perClass)}명, 교원 1인당 ${fmt(m.perTeacher)}명, 동아리 ${m.clubs ?? '-'}개, 기간제 교원 ${fmt(m.tempRatio)}%${m.dropout != null ? `, 학업중단율 ${fmt(m.dropout)}%(15% 비중)` : ''}` + pos('env'),
     subjFit: r.fit ? (r.fit.notes.map(x => x.text).join(' ') || '강점·약점 과목에 두드러진 유불리 없음(중립)') + pos('subjFit') : '성적분포가 없어 중립값(50)',
-    genderPref: `${s.gender === '공학' ? '남녀공학' : s.gender}`,
   };
   const out: Partial<Record<CompKey, { value: number; basis: string }>> = {};
   (Object.keys(r.comps) as CompKey[]).forEach(k => { out[k] = { value: Math.round(r.comps[k] ?? 0), basis: b[k] }; });

@@ -20,7 +20,7 @@ export function FieldBlock({ num, label, tag, required, hint, children }: { num?
   );
 }
 
-/** 라디오 카드 그룹 (성별·통학 중요도·성적대·전략) */
+/** 라디오 카드 그룹 (통학 중요도·성적대·전략) */
 export function RadioCards<T extends string | number>({ value, onChange, options, label, columns = 1, compact }: {
   value: T; onChange: (v: T) => void; label: string; columns?: 1 | 2 | 3; compact?: boolean;
   options: { value: T; title: ReactNode; desc?: ReactNode; hint?: ReactNode }[];

@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // 정적 사이트: 서버 런타임 없음. `vite build` 결과(dist/)를 그대로 Vercel에 올리면 된다.
 export default defineConfig({
+  base: '/',
   plugins: [react(), tailwindcss()],
   resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
   build: {

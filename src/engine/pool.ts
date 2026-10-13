@@ -2,7 +2,7 @@
 // 2027 배정 규칙상 일반고는 거주 학군(구역) 안에서만 지망할 수 있으므로 기본 후보는 같은 구역의 일반고로 둔다.
 import { zoneOfSgg } from './admission';
 import { CITY, RADIUS_KM, SCHOOL_TYPES } from './constants';
-import type { Gender, Point, Profile, School } from './types';
+import type { Point, Profile, School } from './types';
 
 export function distanceKm(a: Point | null, b: { lat: number | null; lng: number | null } | null): number | null {
   if (!a || !b || a.lat == null || b.lat == null || b.lng == null) return null;
@@ -18,15 +18,10 @@ export function centroid(list: School[]): Point | null {
   return { lat: ok.reduce((a, s) => a + (s.lat as number), 0) / ok.length, lng: ok.reduce((a, s) => a + (s.lng as number), 0) / ok.length };
 }
 
-export function genderOk(s: School, g: Gender): boolean {
-  if (s.gender === '공학' || !g) return true;
-  return (g === 'M' && s.gender === '남고') || (g === 'F' && s.gender === '여고');
-}
-
-export interface PoolResult { pool: School[]; origin: Point | null; dist: Map<string, number | null>; excluded: School[] }
+export interface PoolResult { pool: School[]; origin: Point | null; dist: Map<string, number | null> }
 
 export function buildPool(all: School[], p: Profile): PoolResult {
-  const home = all.filter(s => s.city === CITY && genderOk(s, p.gender));
+  const home = all.filter(s => s.city === CITY);
   const origin = p.origin || centroid(home.filter(s => s.sgg === p.sgg)) || centroid(home);
   const dist = new Map<string, number | null>();
   all.forEach(s => dist.set(s.id, distanceKm(origin, s)));
@@ -60,13 +55,11 @@ export function buildPool(all: School[], p: Profile): PoolResult {
 
   const picked = new Map<string, School>();
   [...near, ...extra].forEach(s => picked.set(s.id, s));
-  // 관심 학교는 지역·구역·유형과 상관없이 후보에 넣되(배정 가능 여부는 카드에 표시), 학생 성별로 다닐 수 없는 학교는 제외하고 알려준다
-  const excluded: School[] = [];
+  // 관심 학교는 지역·구역·유형과 상관없이 후보에 추가한다 (배정 가능 여부는 카드에 표시).
   p.interest.forEach(id => {
     const s = all.find(x => x.id === id);
     if (!s) return;
-    if (!genderOk(s, p.gender)) { excluded.push(s); return; }
     picked.set(id, s);
   });
-  return { pool: [...picked.values()], origin, dist, excluded };
+  return { pool: [...picked.values()], origin, dist };
 }

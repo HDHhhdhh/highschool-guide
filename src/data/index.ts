@@ -4,12 +4,13 @@
 //  1) 원자료가 늘면 ../highschool-data 에 넣고 `npm run data` 로 schools.json 을 다시 만든다.
 //  2) 일부 학교에만 새 필드를 덧붙이려면 extra.json 에 { "<학교 id>": { "필드": 값 } } 형태로 적는다.
 //     (예: 새로 확보한 성취도 achData, 중점학교 지정 등) — id 별로 얕게 병합된다.
-import type { School } from '../engine/types';
+import type { ParentReview, School } from '../engine/types';
 import schoolsJson from './schools.json';
 import extraJson from './extra.json';
 import geoJson from './geo.json';
 import metaJson from './meta.json';
 import admissionJson from './admission.json';
+import reviewsJson from './reviews.json';
 
 export interface Geo {
   source: string;
@@ -50,6 +51,7 @@ const extra = extraJson as Record<string, Partial<School>>;
 
 export const SCHOOLS: School[] = (schoolsJson as unknown as School[]).map(s => (extra[s.id] ? { ...s, ...extra[s.id] } : s));
 export const GEO: Geo = geoJson as Geo;
+export const REVIEWS: ParentReview[] = reviewsJson as ParentReview[];
 export const ADMISSION: AdmissionRules = admissionJson as AdmissionRules;
 export const META: Meta = {
   ...(metaJson as Meta),

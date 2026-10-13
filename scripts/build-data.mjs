@@ -72,7 +72,6 @@ for (const e of index.schools) {
     sgg: sggOf(n.region),
     address: n.address,
     foundation: n.foundation,
-    gender: n.coeducation === '남여공학' ? '공학' : n.coeducation,
     kind,
     homepage: n.homepage || null,
     total,

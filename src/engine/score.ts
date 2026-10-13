@@ -2,7 +2,7 @@
 import { achProfile, compActual, subjectFit } from './achievement';
 import { assignRoute } from './admission';
 import { BANDS, CITY, SELECT_PROFILE, STRATEGIES, TRACKS, type Track } from './constants';
-import { currentCourses } from './derive';
+import { currentCourses, mathCompetitiveness } from './derive';
 import type { AchProfile, CompKey, Group, Metrics, Persona, Profile, Result, School } from './types';
 
 export function groupOf(s: School): Group {
@@ -71,14 +71,18 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
     tempRatio: pctFn(col('tempRatio')), seats1: pctFn(col('seats1')), dropout: pctFn(col('dropout')),
   };
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
+  // A~E 동일 비중 평균을 기존 성적대의 대표 상위% 사이로 선형 보간한다.
+  // 공식 석차 환산이 아니라 내신 경쟁력에만 쓰는 참고용 추정이다.
+  const gradeMean = p.subjectGrades ? avg(Object.values(p.subjectGrades)) : null;
+  const lower = gradeMean == null ? 0 : Math.floor(gradeMean) - 1;
+  const upper = Math.min(4, lower + 1);
+  const studentTop = gradeMean == null ? band.top
+    : BANDS[lower].top + (BANDS[upper].top - BANDS[lower].top) * (gradeMean - Math.floor(gradeMean));
   const track = TRACKS[p.track] || TRACKS.none;
   const w: Partial<Record<CompKey, number>> = { ...(STRATEGIES[p.strategy] || STRATEGIES.mix).w };
   w.commute! *= { low: 0.3, mid: 0.5, high: 2.0 }[p.commute || 'mid'];
   // 희망 계열을 정하지 않았으면 과목 연계를 판단할 근거가 없으므로 비중을 낮춘다
   if (p.track === 'none') w.track! *= 0.35;
-  // 학교 성별 선호: 골랐을 때만 아주 작은 비중(전체의 약 4%)
-  const pref = p.genderPref || 'any';
-  if (pref !== 'any') w.genderPref = 0.04;
   // 강점·약점 과목을 고르면 성적분포와의 궁합을 반영 (자료 없는 학교는 중립 50점)
   const useSubj = p.strong.length + p.weak.length > 0;
   if (useSubj) w.subjFit = 0.12;
@@ -102,17 +106,17 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
         comp = ach ? compActual(ach)
           : m.dropout != null ? 0.5 * pct.aim(m.aim) + 0.14 * pct.etc(m.etc) + 0.16 * pct.netIn(m.netIn) + 0.1 * pct.trend(m.trend) + 0.1 * (1 - pct.dropout(m.dropout))
           : 0.55 * pct.aim(m.aim) + 0.15 * pct.etc(m.etc) + 0.18 * pct.netIn(m.netIn) + 0.12 * pct.trend(m.trend);
-        rankTop = Math.min(99, band.top * (0.55 + 0.9 * comp));
+        rankTop = Math.min(99, studentTop * (0.55 + 0.9 * comp));
       } else if (selective && sp) {
         // 입학생이 상위 intake%라면, 상위 p% 학생의 교내 위치 ≈ p / intake (p는 성적대의 가운데 값)
         comp = sp.peer;
-        rankTop = Math.max(1, Math.min(99, (100 * (band.best + band.top)) / 2 / sp.intake));
+        rankTop = Math.max(1, Math.min(99, 100 * (gradeMean == null ? (band.best + band.top) / 2 : studentTop) / sp.intake));
       } else if (group === 'arts') {
         comp = 0.5;
         rankTop = null; // 실기 중심이라 내신 위치를 추정하지 않음
       } else {
         comp = 0.25; // 직업교육 중심: 일반 교과 경쟁은 약한 편
-        rankTop = Math.min(99, band.top * 0.45);
+        rankTop = Math.min(99, studentTop * 0.45);
       }
       const grade = rankTop == null ? null : toGrade(rankTop);
       const gradeLo = rankTop == null ? null : toGrade(rankTop * 0.7);
@@ -130,7 +134,6 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
       const env = 100 * (m.dropout != null ? 0.85 * envCore + 0.15 * (1 - pct.dropout(m.dropout)) : envCore);
 
       const comps: Partial<Record<CompKey, number>> = { naesin, peer, adv, track: trackScore.score, commute, env };
-      if (pref !== 'any') comps.genderPref = (pref === 'coed') === (s.gender === '공학') ? 100 : 0;
       const fit = ach && useSubj && (group === 'general' || selective) ? subjectFit(ach, p) : null;
       if (useSubj) comps.subjFit = fit ? fit.score : 50;
       let total = (Object.entries(comps) as [CompKey, number][]).reduce((a, [k, v]) => a + (w[k] || 0) * v, 0);
@@ -141,7 +144,7 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
       const mult = (admit === 'hard' ? 0.7 : admit === 'tough' ? 0.9 : 1) * (assign.assignable ? 1 : 0.75);
       total *= mult;
       return {
-        school: s, m, comps, total: Math.round(total), comp, rankTop, grade, gradeLo, gradeHi,
+        school: s, math: mathCompetitiveness(s), m, comps, total: Math.round(total), comp, rankTop, grade, gradeLo, gradeHi,
         selective, group, intake: sp?.intake ?? null, admit, trackHits: trackScore.hits, trackMissing: trackScore.missing,
         persona: persona(s, m, comp, pct, group, ach, sp),
         ach: group === 'vocational' ? null : ach, fit,

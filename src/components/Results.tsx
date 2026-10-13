@@ -17,7 +17,7 @@ const SHORT: Record<string, string> = { naesin: '내신', peer: '면학', adv: '
 
 export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Profile; analysis: Analysis; onBook: () => void; onEdit: () => void }) {
   const [shown, setShown] = useState(PAGE);
-  const { results, origin, excluded, rankOf } = analysis;
+  const { results, origin, rankOf } = analysis;
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
   const w = results[0]?.weights ?? {};
   const homeZone = zoneOfSgg(p.sgg);
@@ -35,8 +35,8 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
         <div className="flex flex-wrap gap-1.5" aria-label="입력 조건">
           <Badge variant="secondary">고양시 {p.sgg}</Badge>
           <Badge variant="secondary">거리 기준: {p.originLabel}</Badge>
-          <Badge variant="secondary">{p.gender === 'M' ? '남학생' : '여학생'}</Badge>
           <Badge variant="secondary">성적대 {band.label} ({band.desc})</Badge>
+          {p.subjectGrades && <Badge variant="secondary">상세 성취도 {Object.entries(p.subjectGrades).map(([s, g]) => `${s} ${'ABCDE'[g - 1]}`).join(' · ')}</Badge>}
           <Badge variant="secondary">희망 {TRACKS[p.track]?.label ?? '아직 모름'}</Badge>
           <Badge variant="secondary">{STRATEGIES[p.strategy].label}</Badge>
           <Badge variant="secondary">일반고{p.types.map(k => ' · ' + (SCHOOL_TYPES[k]?.label ?? k)).join('')}</Badge>
@@ -49,7 +49,6 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
           <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
             {MAIN_COMPS.map(k => <li key={k} className="text-muted-foreground">{COMPONENT_LABEL[k]} <b className="text-foreground tnum">{Math.round((w[k] ?? 0) * 100)}%</b></li>)}
             {w.subjFit != null && <li className="text-muted-foreground">{COMPONENT_LABEL.subjFit} <b className="text-foreground tnum">{Math.round(w.subjFit * 100)}%</b></li>}
-            {w.genderPref != null && <li className="text-muted-foreground">{COMPONENT_LABEL.genderPref} <b className="text-foreground tnum">{Math.round(w.genderPref * 100)}%</b></li>}
           </ul>
         </div>
 
@@ -78,8 +77,6 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
 
         <MiniMap results={results} origin={origin} originLabel={p.originLabel} />
 
-        {excluded.length > 0 && <Alert><AlertDescription>관심 학교 중 {excluded.map(s => s.name).join(', ')}은(는) 학생 성별로 다닐 수 없어 제외했습니다.</AlertDescription></Alert>}
-
         <section aria-label="상위 학교 한눈에 비교" className="rounded-xl border">
           <div className="flex items-baseline justify-between gap-2 px-4 pt-3 pb-2">
             <h3 className="text-sm font-semibold">상위 {compare.length}개교 한눈에 비교</h3>
@@ -92,6 +89,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
                   <TableHead className="sticky left-0 z-10 bg-card pl-4">학교</TableHead>
                   <TableHead className="text-right">총점</TableHead>
                   {MAIN_COMPS.map(k => <TableHead key={k} className="text-right">{SHORT[k]}</TableHead>)}
+                  <TableHead className="text-right whitespace-nowrap">수학 경쟁력<br /><span className="text-[10px] font-normal">과목 폭 · 추정</span></TableHead>
                   <TableHead className="text-right whitespace-nowrap">예상 내신</TableHead>
                   <TableHead className="text-right pr-4">거리</TableHead>
                 </TableRow>
@@ -104,6 +102,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
                     </TableCell>
                     <TableCell className="text-right font-bold text-primary-deep">{r.total}</TableCell>
                     {MAIN_COMPS.map(k => <TableCell key={k} className="text-right">{Math.round(r.comps[k] ?? 0)}</TableCell>)}
+                    <TableCell className="text-right" title="8개 수학 선택·심화 과목군 중 확인된 비율. 추천 총점과 별도.">{r.math.score ?? '-'}</TableCell>
                     <TableCell className="text-right whitespace-nowrap">{r.gradeLo == null ? '-' : r.gradeLo === r.gradeHi ? `${r.gradeLo}등급` : `${r.gradeLo}~${r.gradeHi}등급`}</TableCell>
                     <TableCell className="text-right pr-4 whitespace-nowrap">{r.dist == null ? '-' : `${r.dist.toFixed(1)}km`}</TableCell>
                   </TableRow>
