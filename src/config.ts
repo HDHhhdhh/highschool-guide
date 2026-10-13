@@ -10,10 +10,11 @@
 //  2) mailto: 담당자 메일. 대체 경로 '메일로 보내기' 버튼이 이 주소로 열린다.
 //  3) googleFormUrl: (선택) 구글 폼 링크. 넣으면 대체 경로에 버튼이 하나 더 생긴다.
 export const BOOKING = {
-  endpoint: '', // 예: 'https://formspree.io/f/xxxxxxxx'
-  mailto: '', // 예: 'consult@example.com'
+  // Formsubmit.co: 계정 가입 없이 아래 메일로 바로 전송(JSON POST, 첫 제출 시 메일로 1회 활성화 클릭 필요).
+  endpoint: 'https://formsubmit.co/ajax/1130ehdgns@gmail.com',
+  mailto: '1130ehdgns@gmail.com', // 대체 경로 '메일로 보내기' 버튼이 이 주소로 열린다.
   googleFormUrl: '', // 예: 'https://forms.gle/xxxxxxxx'
-  orgName: '진단평가·상담 센터', // 화면에 보이는 운영 주체 이름
+  orgName: '5A 수학학원', // 화면에 보이는 운영 주체 이름
   phone: '', // 예: '031-000-0000' (비우면 표시 안 함)
 };
 
