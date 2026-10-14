@@ -1,6 +1,7 @@
 // 추천 이유·점수 근거 문장 — 참조 explain/scoreBasis 이식 + 데이터 공백을 솔직하게 표시
 import { achSentences } from './achievement';
 import { BANDS, COMPONENT_LABEL, TRACKS } from './constants';
+import { STANDING_NOTE, standingRange } from './standing';
 import type { CompKey, Profile, Result } from './types';
 
 export const fmt = (v: number | null | undefined) => (v == null ? '-' : Number.isInteger(v) ? String(v) : v.toFixed(1));
@@ -11,7 +12,7 @@ export function explain(r: Result, p: Profile): { pros: string[]; cons: string[]
   const pros: string[] = [], cons: string[] = [];
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
   // 내신 점수를 입력했으면 성적대는 그 점수로 추정한 값이다
-  const bandText = `${p.standing ? '추정 성적대' : '현재 성적대'}(${band.desc})`;
+  const bandText = `${p.standing ? '대략 추정한 성적대' : '현재 성적대'}(${band.desc})`;
   const tr0 = TRACKS[p.track] || TRACKS.none;
   if ((r.comps.naesin ?? 0) >= 60 && r.group === 'general') pros.push(`${p.standing ? '입력한 내신 점수' : `${band.label}권 학생`} 기준 예상 내신 ${gradeRange(r)}등급대로, 내신 관리에 유리한 편입니다.`);
   // 중점·특색 지정 (학교알리미 공시 문서 제목·학교 공지 기준)
@@ -69,13 +70,13 @@ export function scoreBasis(r: Result, p: Profile, rankOf: Partial<Record<CompKey
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
   const s = r.school, m = r.m, a = r.ach;
   const pos = (k: CompKey) => (rankOf[k] ? ` (후보 ${n}곳 중 ${rankOf[k]}위)` : '');
-  const compSrc = r.group === 'selective' ? `선발형 학교 입학생 수준(상위 약 ${r.intake}%)`
+  const compSrc = r.group === 'selective' ? `선발형 학교 입학생 수준(대략 상위 ${r.intake}%로 가정)`
     : r.group !== 'general' ? `${r.group === 'arts' ? '예체능' : '직업계'} 학교 기준값`
     : a ? `${a.label} 1학년 국영수 A 비율 평균 ${a.meanA}%·평균 ${a.meanAvg}점 (실제 성적분포)`
     : `졸업생 4년제+재도전 비율 ${fmt(m.aim)}%·전출입·학생 수 추이 (성적분포 미확보 — 공시 지표 추정)`;
   const b: Record<CompKey, string> = {
     naesin: r.rankTop == null ? '실기 중심 학교라 내신 위치를 추정하지 않음'
-      : `${p.standing ? `입력한 내신 점수(${[p.naesinTotal != null ? `총점 ${fmt(p.naesinTotal)}점` : null, p.standing.subjectCount ? `과목 ${p.standing.subjectCount}개 성취도` : null].filter(Boolean).join('·')})로 추정한 위치 상위 약 ${Math.round(p.standing.top)}%(공식 석차 환산 아님)` : `중학교 성적대(${band.desc})`}와 경쟁 강도(${compSrc})로 본 예상 교내 위치 상위 약 ${Math.round(r.rankTop)}%, 1학년 ${s.stu?.[0] ?? '-'}명` + pos('naesin'),
+      : `${p.standing ? `입력한 내신 점수(${[p.naesinTotal != null ? `총점 ${fmt(p.naesinTotal)}점` : null, p.standing.subjectCount ? `과목 ${p.standing.subjectCount}개 성취도` : null].filter(Boolean).join('·')})로 본 대략적 위치(‘${standingRange(p.standing).label}’ · ${standingRange(p.standing).range} · ${STANDING_NOTE})` : `중학교 성적대(${band.desc})`}와 경쟁 강도(${compSrc})로 본 예상 교내 위치 대략 ${gradeRange(r)}등급대(참고용 추정), 1학년 ${s.stu?.[0] ?? '-'}명` + pos('naesin'),
     peer: (a ? '' : '(추정) 직접 측정한 지표가 아님. 추정 근거: ') + compSrc + (!a && m.dropout != null && r.group === 'general' ? ` + 학업중단율 ${fmt(m.dropout)}%(보조)` : '') + pos('peer'),
     adv: r.group === 'vocational' ? '직업계 학교라 중립값' : m.univ == null ? '졸업생 진로 데이터 없음(중간값)'
       : `최근 ${Object.keys(s.career || {}).length}년 평균 4년제 진학 ${fmt(m.univ)}%, 4년제+재도전 ${fmt(m.aim)}%` + pos('adv'),

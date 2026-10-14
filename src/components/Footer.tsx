@@ -10,7 +10,7 @@ export function Footer() {
           학교별 교육과정, 배정·입학 전형, 입시 결과 등 정확한 정보는 해당 학교와 관할 교육청에 직접 문의하시기 바랍니다. 이 서비스의 정보를 근거로 한 결정에 대해 책임지지 않습니다.
         </p>
         <p className="mt-3 text-xs text-muted-foreground/80">
-          데이터 출처: 학교알리미(교육부·한국교육학술정보원), NEIS 교육정보 개방 포털, 경기도교육청 · 수집 {META.capturedAt.slice(0, 10)} · AI를 쓰지 않는 규칙 기반 계산 · UI: shadcn/ui · Magic UI · Pretendard
+          데이터 출처: 학교알리미(교육부·한국교육학술정보원), NEIS 교육정보 개방 포털, 경기도교육청 · 수집 {META.capturedAt.slice(0, 10)} · 고교 선택·수학 과목 안내 인용: 교육을 비추다(kyobit.com) 기사 · 퀴트린 블로그 · 경기고교학점제 지원센터(문장마다 원문 링크) · AI를 쓰지 않는 규칙 기반 계산 · UI: shadcn/ui · Magic UI · Pretendard
         </p>
       </div>
     </footer>

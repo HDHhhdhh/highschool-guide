@@ -1,8 +1,10 @@
 import { ArrowRight, ExternalLink, Info, Pencil, TriangleAlert } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
 import { ADMISSION, META, REVIEWS } from '../data';
-import { BANDS, COMPONENT_LABEL, MAIN_COMPS, SCHOOL_TYPES, STRATEGIES, TRACKS, ZONE_NAME, fmt, gradeLetter, zoneOfSgg, type Analysis, type Profile, type SubjectGrade } from '../engine';
+import { BANDS, COMPONENT_LABEL, MAIN_COMPS, SCHOOL_TYPES, STANDING_NOTE, STRATEGIES, TRACKS, ZONE_NAME, fmt, gradeLetter, standingRange, zoneOfSgg, type Analysis, type Profile, type SubjectGrade } from '../engine';
+import { INDICATOR_BODY, INDICATOR_REFS, INDICATOR_TITLE, IndicatorNote } from './IndicatorNote';
 import { SchoolCard } from './SchoolCard';
+import { Cites } from './SourceLinks';
 import { BlurFade } from '@/components/magicui/blur-fade';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +45,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
             <>
               {p.naesinTotal != null && <Badge variant="secondary">내신 총점 {fmt(p.naesinTotal)}/200</Badge>}
               {p.subjectGrades && <Badge variant="secondary">성취도 {(Object.entries(p.subjectGrades) as [string, SubjectGrade][]).map(([s, g]) => `${s} ${gradeLetter(g)}`).join(' · ')}</Badge>}
-              <Badge variant="secondary">추정 위치 상위 약 {Math.round(p.standing.top)}% · {band.label}</Badge>
+              <Badge variant="secondary" title={STANDING_NOTE}>대략적 위치 {standingRange(p.standing).label} · 참고용 추정</Badge>
             </>
           ) : <Badge variant="secondary">성적대 {band.label} ({band.desc})</Badge>}
           <Badge variant="secondary">희망 {TRACKS[p.track]?.label ?? '아직 모름'}</Badge>
@@ -81,6 +83,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
           <AlertDescription className="text-[0.8125rem] leading-relaxed text-foreground/85">
             <p>과목별 성취도(A~E)는 {META.count}개 학교 중 {META.withAchievement}개 학교(운정고)만 확보했습니다(나머지 {META.count - META.withAchievement}개 학교는 학교알리미 CAPTCHA로 조회 불가). 그 학교들의 '면학 분위기'는 졸업생 진학 지표로 <b>추정</b>한 값이고 '강점·약점 과목 궁합'은 중립입니다.</p>
             <p>중점·특색 지정은 학교알리미 공시 문서 제목과 학교 공지 기준이며(지정 통지서 본문은 미열람), 개설 과목은 2026학년도 시간표 기준이라 이후 학년도 개설을 보장하지 않습니다.</p>
+            <p><b>{INDICATOR_TITLE}.</b> {INDICATOR_BODY} <Cites ids={INDICATOR_REFS} /></p>
           </AlertDescription>
         </Alert>
 
@@ -99,6 +102,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
             ))}
           </ol>
           <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground">수학 경쟁력 = 2026학년도 1·2학년 시간표에서 확인된 선택·심화 수학 과목군(8개) 비율로 만든 추정치입니다. 추천 순위와 별개이며, 학년별 수학 편제는 각 학교 카드의 ‘5A 수학 관점’에 있습니다.</p>
+          <IndicatorNote className="mt-1.5" />
         </section>
 
         <Suspense fallback={<div className="grid h-88 place-items-center rounded-xl border bg-muted/40 text-sm text-muted-foreground sm:h-104">지도를 불러오는 중…</div>}>
@@ -140,6 +144,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
               </TableBody>
             </Table>
           </div>
+          <IndicatorNote className="border-t px-4 py-2.5" />
         </section>
 
         <ol className="flex flex-col gap-4">

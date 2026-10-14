@@ -1,7 +1,8 @@
 // 학업 성적 입력 — 기본은 "내신 총점(200점) + 과목별 성취도", 보조로 "성적대 간단히 선택하기".
-import { BANDS, NAESIN_MAX, NAESIN_PARTS, SUBJECTS, estimateStanding, fmt, parseNaesinTotal, type BandId, type Subject, type SubjectGrade } from '../engine';
+import { BANDS, NAESIN_MAX, NAESIN_PARTS, STANDING_NOTE, SUBJECTS, estimateStanding, fmt, parseNaesinTotal, standingRange, type BandId, type Subject, type SubjectGrade } from '../engine';
 import type { FinderState } from '../lib/finder';
 import { GradePicker, RadioCards } from './form-blocks';
+import { Cites } from './SourceLinks';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -17,7 +18,8 @@ export function AcademicInput({ f, setF, error }: { f: FinderState; setF: (fn: (
   const rough = f.gradeMode === 'band';
   const total = parseNaesinTotal(f.naesinTotal);
   const standing = estimateStanding(total, f.subjectGrades);
-  const band = standing ? BANDS.find(b => b.id === standing.band) : undefined;
+  // 중학교마다 성취도 분포가 달라 정밀한 '상위 X%' 대신 대략적 구간(성적대)만 보여 준다
+  const shown = standing ? standingRange(standing) : null;
   const setGrade = (subject: Subject, g: SubjectGrade | undefined) => setF(s => {
     const next = { ...s.subjectGrades };
     if (g) next[subject] = g; else delete next[subject];
@@ -80,24 +82,30 @@ export function AcademicInput({ f, setF, error }: { f: FinderState; setF: (fn: (
           </div>
 
           <div aria-live="polite" className="rounded-xl bg-navy-soft px-4 py-3 text-sm">
-            {standing && band ? (
+            {standing && shown ? (
               <>
                 <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <b className="font-semibold text-navy">추정 위치 상위 약 {Math.round(standing.top)}%</b>
-                  <span className="text-foreground/80">· {band.label} ({band.desc})</span>
-                  <Badge className="border-transparent bg-warn-soft text-warn">참고용 추정</Badge>
+                  <b className="font-semibold text-navy">대략적 위치: {shown.label}</b>
+                  <span className="text-foreground/80">(대략 {shown.range})</span>
+                  <Badge className="h-auto rounded-md border-transparent bg-warn-soft text-left whitespace-normal text-warn">{STANDING_NOTE}</Badge>
                 </p>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground/80">
+                  같은 점수라도 중학교마다 성취도 A 비율과 내신 산출·분포가 달라, 정확한 ‘상위 몇 %’ 대신 대략적인 구간으로만 보여 드립니다(석차·백분위 아님, 학교 추천 계산에만 사용).
+                  고등학교 내신은 상대평가(1등급 = 상위 10%)라 ‘중학교 A’가 곧 ‘고교 1등급’도 아닙니다.{' '}
+                  <Cites ids={['quitrinGrade5', 'gradeVsA']} />
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  계산:{' '}
                   {[
                     standing.fromTotal != null ? `총점 ${fmt(total)}점 → 성취도 평균 약 ${one(standing.fromTotal)}` : null,
                     standing.fromSubjects != null ? `고른 ${standing.subjectCount}과목 평균 ${one(standing.fromSubjects)}` : null,
                   ].filter(Boolean).join(' · ')}{' '}
                   (A=5 … E=1){standing.fromTotal != null && standing.fromSubjects != null ? ', 두 값을 같은 비중으로 평균' : ''}.
-                  {standing.fromTotal != null && ' 총점 환산은 지침 산식에 비교과 만점·원점수 구간 중간값을 가정한 값입니다.'} 성적대 대표값(상위 4·11·28·55·82%) 사이를 보간한 참고값이며 실제 석차가 아닙니다.
+                  {standing.fromTotal != null && ' 총점 환산은 지침 산식에 비교과 만점·원점수 구간 중간값을 가정한 값입니다.'} 평균이 성적대 경계에 가까우면 두 성적대를 함께 표시합니다.
                 </p>
               </>
             ) : (
-              <p className="text-muted-foreground">내신 총점이나 과목별 성취도를 입력하면 추정 위치를 바로 보여 드립니다.</p>
+              <p className="text-muted-foreground">내신 총점이나 과목별 성취도를 입력하면 대략적인 위치를 바로 보여 드립니다.</p>
             )}
           </div>
         </>

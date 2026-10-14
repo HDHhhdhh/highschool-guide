@@ -1,5 +1,6 @@
 // 학생의 학업 위치(상위 %) 추정 — 기본 입력 "내신 총점(200점) + 과목별 성취도"와 보조 입력 "성적대 대충 선택"을 같은 축으로 맞춘다.
-// 공식 석차 환산이 아니라 내신 경쟁력·예상 교내 위치에만 쓰는 참고용 추정이다.
+// 공식 석차 환산이 아니라 내신 경쟁력·예상 교내 위치에만 쓰는 참고용 추정이다. 중학교마다 성취도 분포·내신 산출이 달라
+// 화면에는 정밀한 '상위 X%'를 쓰지 않고 standingRange()의 대략적 구간(성적대)만 보여 준다.
 import { BANDS } from './constants';
 import type { BandId, Standing, Subject, SubjectGrade } from './types';
 
@@ -51,6 +52,24 @@ export function estimateStanding(total: number | null, grades: Partial<Record<Su
   const level = parts.reduce((a, b) => a + b, 0) / parts.length;
   const top = topFromGradeMean(6 - level);
   return { top, band: bandOfTop(top), level, fromTotal, fromSubjects, subjectCount: picked.length };
+}
+
+/** 화면에 붙이는 꼬리표 — 같은 점수라도 중학교·지역마다 성취도 분포와 내신 산출이 달라 위치를 정확히 말할 수 없다 */
+export const STANDING_NOTE = '참고용 대략 추정 · 중학교·지역에 따라 달라짐';
+
+// 화면 표시용 오차 폭: 성취도 평균(A=5 … E=1) ±0.25 (총점으로 약 ±4점) 안에서 걸치는 성적대를 함께 보여 준다.
+const RANGE_MARGIN = 0.25;
+
+/** 화면에 보이는 대략적 위치. 정밀한 '상위 X%' 대신 성적대 이름과 그 구간만 보여 준다
+ *  (예: { label: '상위~중상위', range: '상위 5~40%' }). 추천 계산은 standing.top·band 를 그대로 쓴다. */
+export function standingRange(s: Standing): { label: string; range: string } {
+  const bandAt = (level: number) => BANDS[bandOfTop(topFromGradeMean(6 - Math.max(1, Math.min(5, level)))) - 1];
+  const from = bandAt(s.level + RANGE_MARGIN); // 더 높은 쪽 성적대
+  const to = bandAt(s.level - RANGE_MARGIN);
+  const upper = to.id < 5 ? BANDS[to.id].best : 100; // 'to' 성적대의 아래 경계 = 다음 성적대의 시작
+  const range = from.best === 0 ? `상위 ${upper}% 이내` : upper === 100 ? `상위 ${from.best}% 이하` : `상위 ${from.best}~${upper}%`;
+  const suffix = to.id === 5 ? '' : '권'; // ‘상위권’·‘중상위~중위권’ (‘기초 다지기’는 그대로)
+  return { label: (from.id === to.id ? from.label : `${from.label}~${to.label}`) + suffix, range };
 }
 
 export const GRADE_LETTERS = ['A', 'B', 'C', 'D', 'E'] as const;

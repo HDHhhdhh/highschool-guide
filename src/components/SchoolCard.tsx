@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { REVIEWS } from '../data';
 import { COMPONENT_LABEL, COURSE_CAVEAT, explain, fmt, gradeLetter, mathCurriculum, scoreBasis, type CompKey, type MathCourse, type Profile, type Result } from '../engine';
 import { kakaoDirectionsUrl, naverMapUrl } from '../lib/directions';
+import { IndicatorNote } from './IndicatorNote';
 import { ReviewList } from './ReviewList';
 import { ScoreBars } from './ScoreBars';
 import { Badge } from '@/components/ui/badge';
@@ -98,6 +99,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
       <p className="rounded-md bg-muted px-3 py-2 text-[0.8125rem] leading-snug"><b className="font-semibold">배정·전형</b> <span className="text-foreground/80">{r.assign.route}</span></p>
 
       <ScoreBars r={r} />
+      <IndicatorNote />
 
       <section className="rounded-xl border border-primary/25 bg-secondary/40 p-4" aria-label={`${s.name} 수학 관점`}>
         <div className="flex items-start justify-between gap-3">
@@ -126,7 +128,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
             <dd>최근 성취도 <b>{gradeLetter(myMath)}</b> · 이 학교 2학년 진로·심화 수학 {curriculum?.['2'].filter(c => c.tier === 'advanced').length ?? 0}과목 개설 확인</dd>
           </>}
         </dl>
-        <p className="mt-3 text-xs leading-relaxed text-muted-foreground"><span className="font-semibold text-primary-deep">주황 칩</span> = 진로·융합·심화 선택 과목. 수학 경쟁력은 과목 개설 폭을 비교하는 추정치로 수학 성적·수업의 질을 뜻하지 않으며 추천 총점에 넣지 않습니다. 시간표에 없는 과목이 미개설을 확정하지는 않습니다.</p>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground"><span className="font-semibold text-primary-deep">주황 칩</span> = 진로·융합·심화 선택 과목. 수학 경쟁력은 과목 개설 폭을 비교하는 추정치로 수학 성적·수업의 질을 뜻하지 않으며 추천 총점에 넣지 않습니다. 수학 성취도 A 비율도 입학생 수준·시험 난이도가 함께 반영된 값이라 학교의 실력을 그대로 뜻하지 않습니다. 시간표에 없는 과목이 미개설을 확정하지는 않습니다.</p>
       </section>
 
       <section id={`reviews-${s.id}`} aria-label={`${s.name} 학교별 리뷰`} className="rounded-xl border border-navy/15 bg-navy-soft/50 p-4">
@@ -224,6 +226,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
                   ))}
                 </TableBody>
               </Table>
+              <IndicatorNote className="mt-2" />
             </section>
           )}
 
