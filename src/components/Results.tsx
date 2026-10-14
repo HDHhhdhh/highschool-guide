@@ -1,7 +1,7 @@
 import { ArrowRight, ExternalLink, Info, Pencil, TriangleAlert } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
 import { ADMISSION, META, REVIEWS } from '../data';
-import { BANDS, COMPONENT_LABEL, MAIN_COMPS, SCHOOL_TYPES, STANDING_NOTE, STRATEGIES, TRACKS, ZONE_NAME, fmt, gradeLetter, standingRange, zoneOfSgg, type Analysis, type Profile, type SubjectGrade } from '../engine';
+import { BANDS, COMPONENT_LABEL, MAIN_COMPS, SCHOOL_TYPES, STANDING_NOTE, STRATEGIES, ZONE_NAME, fmt, gradeLetter, standingRange, tracksLabel, zoneOfSgg, type Analysis, type Profile, type SubjectGrade } from '../engine';
 import { INDICATOR_BODY, INDICATOR_REFS, INDICATOR_TITLE, IndicatorNote } from './IndicatorNote';
 import { SchoolCard } from './SchoolCard';
 import { Cites } from './SourceLinks';
@@ -48,7 +48,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
               <Badge variant="secondary" title={STANDING_NOTE}>대략적 위치 {standingRange(p.standing).label} · 참고용 추정</Badge>
             </>
           ) : <Badge variant="secondary">성적대 {band.label} ({band.desc})</Badge>}
-          <Badge variant="secondary">희망 {TRACKS[p.track]?.label ?? '아직 모름'}</Badge>
+          <Badge variant="secondary">희망 {tracksLabel(p.tracks)}</Badge>
           <Badge variant="secondary">{STRATEGIES[p.strategy].label}</Badge>
           <Badge variant="secondary">일반고{p.types.map(k => ' · ' + (SCHOOL_TYPES[k]?.label ?? k)).join('')}</Badge>
           {p.strong.length > 0 && <Badge variant="secondary">강한 과목 {p.strong.join('·')}</Badge>}

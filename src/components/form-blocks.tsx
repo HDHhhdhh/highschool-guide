@@ -88,14 +88,12 @@ export function GradePicker({ subject, value, onChange, emphasize }: { subject: 
   );
 }
 
-/** 토글 칩 (다중 선택: 강·약 과목, 학교 유형) 과 단일 선택 칩 (희망 계열) */
-export function Chip({ on, disabled, onClick, children, hint, role = 'button' }: { on: boolean; disabled?: boolean; onClick: () => void; children: ReactNode; hint?: ReactNode; role?: 'button' | 'radio' }) {
+/** 토글 칩 (다중 선택: 강·약 과목, 희망 계열, 학교 유형) */
+export function Chip({ on, disabled, onClick, children, hint }: { on: boolean; disabled?: boolean; onClick: () => void; children: ReactNode; hint?: ReactNode }) {
   return (
     <button
       type="button"
-      role={role}
-      aria-pressed={role === 'button' ? on : undefined}
-      aria-checked={role === 'radio' ? on : undefined}
+      aria-pressed={on}
       disabled={disabled}
       onClick={onClick}
       className={cn(

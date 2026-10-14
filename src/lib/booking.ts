@@ -1,6 +1,6 @@
 // 진단평가 예약·상담 사전정보 — 상태, 검증, 요약문, 전송
 import { BOOKING } from '../config';
-import { BANDS, TRACKS, type BandId, type Subject } from '../engine';
+import { BANDS, tracksLabel, type BandId, type Subject } from '../engine';
 
 export interface BookingState {
   studentName: string;
@@ -8,7 +8,7 @@ export interface BookingState {
   middleSchool: string;
   guardianPhone: string;
   wishSchools: string; // 희망 고등학교/지역 (자유 입력)
-  track: string; // TRACKS key
+  tracks: string[]; // 희망 계열 TRACKS key (여러 개, [] = 아직 모름)
   band: BandId | 0; // 0 = 미선택
   strong: Subject[];
   weak: Subject[];
@@ -22,7 +22,7 @@ export interface BookingState {
 }
 
 export const DEFAULT_BOOKING: BookingState = {
-  studentName: '', grade: '중3', middleSchool: '', guardianPhone: '', wishSchools: '', track: 'none', band: 0,
+  studentName: '', grade: '중3', middleSchool: '', guardianPhone: '', wishSchools: '', tracks: [], band: 0,
   strong: [], weak: [], question: '', preferredDate: '', preferredTime: '', consent: false, recommended: [], region: '',
 };
 
@@ -56,7 +56,6 @@ export const formatPhone = (v: string) => {
 };
 
 const bandLabel = (id: BandId | 0) => { if (!id) return '미선택'; const b = BANDS.find(x => x.id === id); return b ? `${b.label} (${b.desc})` : '미선택'; };
-const trackLabel = (k: string) => (TRACKS[k] || TRACKS.none).label;
 const dateLabel = (b: BookingState) => [b.preferredDate, b.preferredTime].filter(Boolean).join(' ') || '미정';
 
 /** 사람이 읽는 요약문 (복사·메일·전송 본문 공용) */
@@ -68,7 +67,7 @@ export function bookingSummary(b: BookingState): string {
     `현재 중학교: ${b.middleSchool.trim() || '미입력'}`,
     `보호자 연락처: ${b.guardianPhone.trim()}`,
     `희망 고등학교/지역: ${b.wishSchools.trim() || '미입력'}${b.region ? ` (거주: ${b.region})` : ''}`,
-    `희망 계열·학과: ${trackLabel(b.track)}`,
+    `희망 계열·학과: ${tracksLabel(b.tracks)}`,
     `현재 성적대: ${bandLabel(b.band)}`,
     `강한 과목: ${b.strong.join(', ') || '-'} / 약한 과목: ${b.weak.join(', ') || '-'}`,
     `희망 상담·진단 일시: ${dateLabel(b)}`,
@@ -88,7 +87,7 @@ export function bookingPayload(b: BookingState) {
     보호자연락처: b.guardianPhone.trim(),
     희망고등학교지역: b.wishSchools.trim(),
     거주지역: b.region,
-    희망계열: trackLabel(b.track),
+    희망계열: tracksLabel(b.tracks),
     현재성적대: bandLabel(b.band),
     강한과목: b.strong.join(', '),
     약한과목: b.weak.join(', '),

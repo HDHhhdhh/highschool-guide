@@ -16,7 +16,7 @@ export interface FinderState {
   band: BandId; // '간단히 선택하기'에서 고른 성적대
   strong: Subject[];
   weak: Subject[];
-  track: string;
+  tracks: string[]; // 희망 계열 TRACKS key (여러 개, [] = 아직 모름)
   strategy: Strategy;
   types: string[];
   interest: string[];
@@ -25,7 +25,7 @@ export interface FinderState {
 export const DEFAULT_FINDER: FinderState = {
   sgg: '일산서구', dong: '', middle: '', commute: 'mid',
   gradeMode: 'score', naesinTotal: '', subjectGrades: {}, band: 3,
-  strong: [], weak: [], track: 'none', strategy: 'mix', types: ['autonomous'], interest: [],
+  strong: [], weak: [], tracks: [], strategy: 'mix', types: ['autonomous'], interest: [],
 };
 
 export function toProfile(f: FinderState): Profile {
@@ -48,7 +48,7 @@ export function toProfile(f: FinderState): Profile {
     naesinTotal: standing ? total : null,
     subjectGrades: standing && standing.subjectCount ? { ...f.subjectGrades } : null,
     standing,
-    strong: f.strong, weak: f.weak, track: f.track, strategy: f.strategy, types: f.types, interest: f.interest,
+    strong: f.strong, weak: f.weak, tracks: f.tracks, strategy: f.strategy, types: f.types, interest: f.interest,
   };
 }
 

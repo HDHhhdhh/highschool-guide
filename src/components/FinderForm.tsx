@@ -1,7 +1,7 @@
 import { ArrowRight, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { GEO, SCHOOLS } from '../data';
-import { NAESIN_MAX, SCHOOL_TYPES, STRATEGIES, SUBJECTS, TRACKS, TYPES_NOT_IN_DATA, estimateStanding, parseNaesinTotal, type CommuteWeight, type Strategy, type Subject } from '../engine';
+import { NAESIN_MAX, SCHOOL_TYPES, STRATEGIES, SUBJECTS, TRACKS, TRACK_IDS, TYPES_NOT_IN_DATA, estimateStanding, parseNaesinTotal, tracksLabel, type CommuteWeight, type Strategy, type Subject } from '../engine';
 import { toggleIn, type FinderState } from '../lib/finder';
 import { AcademicInput } from './AcademicInput';
 import { Chip, FieldBlock, RadioCards } from './form-blocks';
@@ -30,10 +30,15 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
   const middles = GEO.middle.filter(m => m.sgg === f.sgg);
   const interestOptions = SCHOOLS.filter(s => !f.interest.includes(s.id));
 
-  const setTrack = (t: string) => {
-    const auto = t === 'job' ? 'vocational' : null;
-    setF(s => ({ ...s, track: t, types: auto && !s.types.includes(auto) ? [...s.types, auto] : s.types }));
-  };
+  // 희망 계열은 여러 개 고를 수 있다 (다시 누르면 빠짐). 취업·기술을 고르면 특성화고를 함께 고려 유형에 넣는다
+  const toggleTrack = (t: string) => setF(s => {
+    const adding = !s.tracks.includes(t);
+    const types = adding && t === 'job' && !s.types.includes('vocational') ? [...s.types, 'vocational'] : s.types;
+    return { ...s, tracks: toggleIn(s.tracks, t), types };
+  });
+  const trackHint = f.tracks.length
+    ? <><b className="font-semibold text-primary-deep">{f.tracks.length}개 선택 · {tracksLabel(f.tracks)}</b> — 다시 누르면 빠지고, ‘아직 모름’을 누르면 모두 해제됩니다.{f.tracks.length > 1 && ' 고른 계열을 모두 같은 비중으로 반영해 학교를 비교합니다.'}</>
+    : '여러 개 고를 수 있습니다. 아직 정하지 않았으면 ‘아직 모름’ 그대로 두세요(계열 적합 비중을 낮춰 계산).';
 
   // 한 번 제출을 시도한 뒤에는 고치는 대로 오류 문구를 갱신한다
   const [tried, setTried] = useState(false);
@@ -108,9 +113,10 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
             </div>
           </FieldBlock>
 
-          <FieldBlock num={6} label="희망 계열·학과">
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="희망 계열">
-              {Object.entries(TRACKS).map(([k, t]) => <Chip key={k} role="radio" on={f.track === k} onClick={() => setTrack(k)}>{t.label}</Chip>)}
+          <FieldBlock num={6} label="희망 계열·학과" tag="선택 · 여러 개" hint={trackHint}>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="희망 계열 (여러 개 선택)">
+              {TRACK_IDS.map(k => <Chip key={k} on={f.tracks.includes(k)} onClick={() => toggleTrack(k)}>{TRACKS[k].label}</Chip>)}
+              <Chip on={!f.tracks.length} onClick={() => set('tracks', [])}>{TRACKS.none.label}</Chip>
             </div>
           </FieldBlock>
 

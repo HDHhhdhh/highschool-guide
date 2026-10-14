@@ -100,7 +100,7 @@ export interface Profile {
   standing: Standing | null; // 내신 점수로 추정한 위치 (null = 성적대 대충 선택)
   strong: Subject[];
   weak: Subject[];
-  track: string;
+  tracks: string[]; // 희망 계열 TRACKS key (여러 개, 빈 배열 = 아직 모름)
   strategy: Strategy;
   types: string[];
   interest: string[]; // 관심 학교 id
@@ -146,6 +146,9 @@ export interface AchProfile {
   stabDiff: number | null;
 }
 
+/** 고른 계열 하나의 핵심 과목 개설 수 (계열 적합 점수는 계열별 비율의 평균) */
+export interface TrackPart { label: string; hit: number; total: number }
+
 export interface FitNote { good: boolean; k: Subject; text: string }
 export interface SubjectFit { score: number; notes: FitNote[] }
 
@@ -180,6 +183,7 @@ export interface Result {
   admit: 'ok' | 'tough' | 'hard';
   trackHits: string[];
   trackMissing: string[];
+  trackParts: TrackPart[];
   persona: Persona;
   ach: AchProfile | null;
   fit: SubjectFit | null;

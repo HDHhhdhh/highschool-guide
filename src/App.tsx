@@ -53,7 +53,7 @@ export default function App() {
       middleSchool: finder.middle,
       region: [finder.sgg, finder.dong].filter(Boolean).join(' '),
       wishSchools: top.join(', '),
-      track: finder.track,
+      tracks: finder.tracks,
       band: b.id,
       strong: finder.strong,
       weak: finder.weak,

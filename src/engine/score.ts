@@ -1,9 +1,9 @@
 // 점수 — 참조 scorePool 이식. 모든 점수는 "같은 후보군 안에서의 상대 비교"이며 절대적인 학력 서열이 아니다.
 import { achProfile, compActual, subjectFit } from './achievement';
 import { assignRoute } from './admission';
-import { BANDS, CITY, SELECT_PROFILE, STRATEGIES, TRACKS, type Track } from './constants';
+import { BANDS, CITY, SELECT_PROFILE, STRATEGIES, TRACKS, selectedTracks, type Track } from './constants';
 import { currentCourses, mathCompetitiveness } from './derive';
-import type { AchProfile, CompKey, Group, Metrics, Persona, Profile, Result, School } from './types';
+import type { AchProfile, CompKey, Group, Metrics, Persona, Profile, Result, School, TrackPart } from './types';
 
 export function groupOf(s: School): Group {
   if (s.kind === '특성화고') return 'vocational';
@@ -74,11 +74,11 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
   // 내신 점수(총점·과목별 성취도)를 입력했으면 그 추정 위치(standing.ts), 성적대만 골랐으면 성적대 대표값.
   // 공식 석차 환산이 아니라 내신 경쟁력에만 쓰는 참고용 추정이다.
   const studentTop = p.standing ? p.standing.top : band.top;
-  const track = TRACKS[p.track] || TRACKS.none;
+  const tracks = selectedTracks(p.tracks);
   const w: Partial<Record<CompKey, number>> = { ...(STRATEGIES[p.strategy] || STRATEGIES.mix).w };
   w.commute! *= { low: 0.3, mid: 0.5, high: 2.0 }[p.commute || 'mid'];
   // 희망 계열을 정하지 않았으면 과목 연계를 판단할 근거가 없으므로 비중을 낮춘다
-  if (p.track === 'none') w.track! *= 0.35;
+  if (!tracks.length) w.track! *= 0.35;
   // 강점·약점 과목을 고르면 성적분포와의 궁합을 반영 (자료 없는 학교는 중립 50점)
   const useSubj = p.strong.length + p.weak.length > 0;
   if (useSubj) w.subjFit = 0.12;
@@ -122,7 +122,7 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
       const peer = 100 * Math.max(0, Math.min(1, comp));
       // 4년제 진학: 직업계는 취업 중심이라 중립, 그 밖은 실제 진학률을 일반고 분포에 비춰 본다
       const adv = group === 'vocational' ? 50 : m.univ != null ? 100 * (0.4 * pct.univ(m.univ) + 0.6 * pct.aim(m.aim)) : 50;
-      const trackScore = trackFit(s, track);
+      const trackScore = trackFit(s, tracks);
       // 통학을 중요하게 고르지 않았으면 거리에 따른 감소를 완만하게
       const commute = d == null ? 50 : 100 * Math.exp(-d / (p.commute === 'high' ? 3.5 : 6));
       // 교육 여건: 학급당·교원 1인당 학생 수, 동아리, 기간제 비율 + 학업중단율(있으면 15% 비중의 보조 신호)
@@ -141,7 +141,7 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
       total *= mult;
       return {
         school: s, math: mathCompetitiveness(s), m, comps, total: Math.round(total), comp, rankTop, grade, gradeLo, gradeHi,
-        selective, group, intake: sp?.intake ?? null, admit, trackHits: trackScore.hits, trackMissing: trackScore.missing,
+        selective, group, intake: sp?.intake ?? null, admit, trackHits: trackScore.hits, trackMissing: trackScore.missing, trackParts: trackScore.parts,
         persona: persona(s, m, comp, pct, group, ach, sp),
         ach: group === 'vocational' ? null : ach, fit,
         dist: d, weights: w, mult, assign,
@@ -151,35 +151,43 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
     .sort((a, b) => b.total - a.total);
 }
 
-export function trackFit(s: School, track: Track): { score: number; hits: string[]; missing: string[] } {
+// 희망 계열 적합. 계열을 여러 개 고르면 계열마다 핵심 과목 개설 비율을 구해 같은 비중으로 평균한다
+// (공학+의약을 고르면 두 계열을 똑같이 본다 — 과목 목록이 긴 계열이 결과를 좌우하지 않게).
+// 중점 지정·학교 유형 가감은 고른 계열 중 하나라도 맞으면 적용. 아무것도 고르지 않으면 예전 '아직 모름'과 같다.
+export function trackFit(s: School, tracks: Track[]): { score: number; hits: string[]; missing: string[]; parts: TrackPart[] } {
   let score = 50;
-  const hits: string[] = [], missing: string[] = [];
+  // 여러 계열에 겹치는 과목(미적분 등)은 목록에 한 번만
+  const hits = new Set<string>(), missing = new Set<string>();
+  const parts: TrackPart[] = [];
   // 2027 입학생 기준: 2022 개정 교육과정인 1·2학년 시간표 과목만 본다
   const courses = currentCourses(s.subjects);
-  if (courses && track.kw.length) {
+  if (courses) {
     const all = courses.join(' ');
-    track.kw.forEach(k => {
-      const alts = k.split('|');
-      const found = alts.find(x => all.includes(x));
-      if (found) hits.push(found); else missing.push(alts[0]);
+    tracks.filter(t => t.kw.length).forEach(t => {
+      let hit = 0;
+      t.kw.forEach(k => {
+        const alts = k.split('|');
+        const found = alts.find(x => all.includes(x));
+        if (found) { hits.add(found); hit++; } else missing.add(alts[0]);
+      });
+      parts.push({ label: t.label, hit, total: t.kw.length });
     });
     // 과목 연계 차이가 점수 차이로 분명히 드러나도록 폭을 넓게 (0개 15점 ~ 전부 95점)
-    score = 15 + 80 * (hits.length / track.kw.length);
+    if (parts.length) score = 15 + 80 * avg(parts.map(x => x.hit / x.total));
   }
   if (s.subjRoom) score += 6;
   if (s.levelClass) score += 3;
   if (s.autonomous) score += 3;
-  // 중점·특색 지정(학교알리미 공시 문서 기준): 계열과 맞을 때만 가산
+  // 중점·특색 지정(학교알리미 공시 문서 기준): 고른 계열 중 하나라도 맞을 때만 가산
+  const any = (f: (t: Track) => boolean | undefined) => tracks.some(t => !!f(t));
   const kinds = (s.designations || []).map(x => x.kind);
-  if (track.stem && (s.scienceFocus === true || kinds.includes('과학중점학교'))) score += 8;
-  if ((track === TRACKS.it || track === TRACKS.eng) && kinds.some(k => /^AI/.test(k))) score += 6;
+  if (any(t => t.stem) && (s.scienceFocus === true || kinds.includes('과학중점학교'))) score += 8;
+  if (any(t => t === TRACKS.it || t === TRACKS.eng) && kinds.some(k => /^AI/.test(k))) score += 6;
   const k = s.kind;
-  if ((k === '외고' || k === '국제고') && (track.lang || track === TRACKS.biz)) score += 30;
-  if (k === '예술고' && track.arts) score += 40;
-  if (k === '예술고' && !track.arts && track !== TRACKS.none) score -= 40;
-  if (k === '특성화고' && track.job) score += 40;
-  if (k === '특성화고' && !track.job) score -= 40;
-  return { score: clamp(score), hits, missing };
+  if ((k === '외고' || k === '국제고') && any(t => t.lang || t === TRACKS.biz)) score += 30;
+  if (k === '예술고' && tracks.length) score += any(t => t.arts) ? 40 : -40;
+  if (k === '특성화고') score += any(t => t.job) ? 40 : -40;
+  return { score: clamp(score), hits: [...hits], missing: [...missing], parts };
 }
 
 function persona(s: School, m: Metrics, comp: number, pct: Pct, group: Group, ach: AchProfile | null, sp: { intake: number } | null): Persona {

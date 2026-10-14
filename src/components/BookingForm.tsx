@@ -2,7 +2,7 @@ import { ArrowLeft, Check, Copy, ExternalLink, Mail, Phone, Send, TriangleAlert 
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { BOOKING } from '../config';
 import { GEO } from '../data';
-import { BANDS, SUBJECTS, TRACKS, type BandId, type Subject } from '../engine';
+import { BANDS, SUBJECTS, TRACKS, TRACK_IDS, type BandId, type Subject } from '../engine';
 import { GRADES, TIMES, bookingSummary, formatPhone, mailtoHref, submitBooking, validateBooking, type BookingErrors, type BookingState } from '../lib/booking';
 import { toggleIn } from '../lib/finder';
 import { Chip } from './form-blocks';
@@ -119,23 +119,22 @@ export function BookingForm({ initial, hasResults, onBackToFinder }: { initial: 
             <Input id="bk-wish" className={control} value={b.wishSchools} onChange={e => set('wishSchools', e.target.value)} placeholder="예: 정발고, 백석고 / 일산동구" />
           </Row>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <Row label="희망 계열·학과" htmlFor="bk-track">
-              <Select value={b.track} onValueChange={v => set('track', v)}>
-                <SelectTrigger id="bk-track" className={cn(control, 'w-full')}><SelectValue /></SelectTrigger>
-                <SelectContent>{Object.entries(TRACKS).map(([k, t]) => <SelectItem key={k} value={k}>{t.label}</SelectItem>)}</SelectContent>
-              </Select>
-            </Row>
-            <Row label="현재 성적대" htmlFor="bk-band">
-              <Select value={b.band ? String(b.band) : NONE} onValueChange={v => set('band', v === NONE ? 0 : (Number(v) as BandId))}>
-                <SelectTrigger id="bk-band" className={cn(control, 'w-full')}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>선택 안 함</SelectItem>
-                  {BANDS.map(x => <SelectItem key={x.id} value={String(x.id)}>{x.label} ({x.desc})</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Row>
-          </div>
+          <Row label="희망 계열·학과" hint="여러 개 고를 수 있습니다. 다시 누르면 빠지고, ‘아직 모름’을 누르면 모두 해제됩니다.">
+            <div className="flex flex-wrap gap-2" role="group" aria-label="희망 계열 (여러 개 선택)">
+              {TRACK_IDS.map(k => <Chip key={k} on={b.tracks.includes(k)} onClick={() => set('tracks', toggleIn(b.tracks, k))}>{TRACKS[k].label}</Chip>)}
+              <Chip on={!b.tracks.length} onClick={() => set('tracks', [])}>{TRACKS.none.label}</Chip>
+            </div>
+          </Row>
+
+          <Row label="현재 성적대" htmlFor="bk-band">
+            <Select value={b.band ? String(b.band) : NONE} onValueChange={v => set('band', v === NONE ? 0 : (Number(v) as BandId))}>
+              <SelectTrigger id="bk-band" className={cn(control, 'w-full')}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NONE}>선택 안 함</SelectItem>
+                {BANDS.map(x => <SelectItem key={x.id} value={String(x.id)}>{x.label} ({x.desc})</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Row>
 
           <Row label="강한 과목 · 약한 과목">
             <div className="flex flex-col gap-3">

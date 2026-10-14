@@ -25,6 +25,12 @@ export const TRACKS: Record<string, Track> = {
   job: { label: '취업·기술', job: true, kw: [] },
   none: { label: '아직 모름', kw: [] },
 };
+// 희망 계열은 여러 개 고를 수 있다 (TRACKS key 배열). 빈 배열 = '아직 모름'
+export const TRACK_IDS = Object.keys(TRACKS).filter(k => k !== 'none');
+/** 고른 계열 — 클릭 순서와 상관없이 TRACKS 순서로 */
+export const selectedTracks = (ids: string[]): Track[] => TRACK_IDS.filter(k => ids.includes(k)).map(k => TRACKS[k]);
+/** 화면·예약 요약용 이름: '공학, 의약·보건' (없으면 '아직 모름') */
+export const tracksLabel = (ids: string[]) => selectedTracks(ids).map(t => t.label).join(', ') || TRACKS.none.label;
 
 export interface StrategyDef { label: string; desc: string; w: Record<'naesin' | 'peer' | 'adv' | 'track' | 'commute' | 'env', number> }
 // 희망 계열 적합(개설 과목 연계)을 가장 크게, 통학은 '보통'일 때 작게 반영
