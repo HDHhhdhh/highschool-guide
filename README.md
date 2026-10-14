@@ -4,9 +4,7 @@
 
 운영자 요청으로 경기영상과학고·고양예술고·고양일고·신원고·신일비즈니스고·일산고·일산국제컨벤션고 7개 학교는 비교 대상에서 뺐다(`schools.json`·`reviews.json`에서 제거, `scripts/build-data.mjs`의 `EXCLUDED_IDS`로 재생성 시에도 제외).
 
-두 기능:
-1. **학교 추천** (`#finder`) — 입력 → 후보 선정 → 점수 → 순위·근거 표시
-2. **진단평가 예약 · 상담 사전정보** (`#booking`) — 추천 결과를 넘겨받아 예약 폼 작성 → 폼 수신 서비스 전송 또는 요약 복사/메일
+기능: **학교 추천** (`#finder`) — 입력 → 후보 선정 → 점수 → 순위·근거 표시 (한 페이지, 화면 전환 없음)
 
 ## 실행
 
@@ -23,30 +21,17 @@ npm run preview  # dist/ 미리 보기
 scripts/build-data.mjs   ../highschool-data/*.json + supplement/ → src/data/schools.json, meta.json, admission.json  (npm run data)
 src/data/                schools.json(32개 학교), reviews.json(학교별 리뷰 195건), reviews-excluded.json(리뷰에서 뺀 광고·모집·다른 지역 학교 글 73건), geo.json(고양 동 35·중학교 47 좌표), admission.json(2027 배정 규칙), meta.json, extra.json(id별 추가 필드 병합)
 src/engine/              점수 엔진 (참조 사이트 engine.js 의 TypeScript 이식 + admission.ts 배정 경로)
-src/components/          화면 (MathWhy, FinderForm, Results, SchoolCard, MathCourseGuide, IndicatorNote, SourceLinks, BookingForm, form-blocks ...)
+src/components/          화면 (MathWhy, FinderForm, Results, SchoolCard, MathCourseGuide, IndicatorNote, SourceLinks, form-blocks ...)
 src/data/references.ts   인용한 외부 자료(원문 제목·날짜·링크) — 화면의 출처 링크·참고 자료 목록이 여기서 나온다
 src/data/mathGuide.ts    고교학점제 수학 과목 선택 가이드 내용(과목 체계·계열별 흐름·확인할 것)
 src/components/ui/       shadcn/ui new-york-v4 레지스트리 원본 15개 (button, card, badge, input, textarea, label, select, radio-group, checkbox, tabs, table, progress, collapsible, alert, separator)
 src/components/magicui/  Magic UI 레지스트리 원본 (blur-fade, number-ticker)
 src/styles/globals.css   디자인 토큰 — shadcn 변수 규약(--primary 등)에 5A 브랜드(오렌지 #FF6611 주색, 네이비 #002060 보조, 작은 글자는 --primary-deep)를 입힘. Tailwind v4 @theme
 src/assets/logo-5a-x.png 헤더 로고 '5A 수학학원 × …' (원본 10240×5760에서 여백을 잘라 투명 배경 583×120 PNG로 내보냄)
-src/config.ts            운영자 설정 (폼 엔드포인트, 메일, 상호명)
+src/config.ts            운영자 설정 (사이트 이름·소개 문구)
 ```
 
 UI 시스템: 21st.dev 커뮤니티 컴포넌트의 기반인 **shadcn/ui**(MIT) + **Magic UI**(MIT, 21st.dev @dillionverma/library/magic-ui) 공개 레지스트리 원본을 그대로 가져와 색·글꼴만 토큰으로 입혔다. 글꼴은 Pretendard Variable(OFL)을 npm 패키지에서 번들(런타임 CDN 없음).
-
-## 예약 폼 전송 연결 (운영자)
-
-`src/config.ts` 의 `BOOKING` 만 고치면 됩니다.
-
-| 항목 | 설명 |
-|---|---|
-| `endpoint` | 폼 수신 URL. **Formspree**: formspree.io 에서 새 폼 → `https://formspree.io/f/xxxxxxxx` 를 넣음. JSON POST(`Accept: application/json`)로 보내므로 Getform·Basin·Web3Forms 등 같은 방식의 서비스도 그대로 사용 가능 |
-| `mailto` | 담당자 메일. '메일로 보내기' 버튼이 요약문을 본문에 담아 메일 앱을 연다 |
-| `googleFormUrl` | (선택) 구글 폼 링크. 넣으면 '구글 폼으로 열기' 버튼이 생김 (구글 폼은 CORS 때문에 직접 POST 불가) |
-| `orgName`, `phone` | 화면에 보이는 운영 주체 이름·전화 |
-
-`endpoint` 가 비어 있으면 '예약 요청 보내기' 버튼은 숨고, **요약 복사하기**(문자·카카오톡에 붙여넣기)와 메일 버튼만 보입니다. 전송 실패 시에도 같은 대체 경로를 안내합니다.
 
 ## 데이터 확장
 
@@ -58,8 +43,7 @@ UI 시스템: 21st.dev 커뮤니티 컴포넌트의 기반인 **shadcn/ui**(MIT)
 
 1. 이 폴더를 Git 저장소로 올린다 (`dist/`, `node_modules/` 는 `.gitignore`).
 2. Vercel → Add New Project → 저장소 선택. Framework Preset **Vite** 가 자동 감지됨 (Build `npm run build`, Output `dist`).
-3. Deploy. 서버 런타임·환경 변수 불필요. 해시 라우팅(`#finder`, `#booking`)이라 리라이트 설정도 필요 없다.
-4. 예약 폼 연결은 `src/config.ts` 수정 후 다시 배포.
+3. Deploy. 서버 런타임·환경 변수 불필요. 한 페이지(`index.html`)라 리라이트 설정도 필요 없다.
 
 ## GitHub Pages 배포 (현재 운영 중)
 
@@ -88,7 +72,7 @@ npx tsc -b && npx vite build --base /highschool-guide/   # dist/ (경로 접두�
 ## 내신 입력·지도·수학 지표·학교별 리뷰
 
 - **내신 입력(기본)**: 내신 총점(200점 만점) + 과목별 성취도(국·수·영·사·과 A~E, 아는 과목만). 200점 = 교과활동 150 + 출결 20 + 봉사활동 20 + 학교활동 10 (경기도교육청 「고등학교 입학 내신성적 반영지침」 2026·2027학년도; 고양 등 9개 평준화학군은 이 점수로 배정예정자를 선발한 뒤 선지원·후추첨). 총점은 지침 산식(일반교과 학기별 기본점수 + 성취도 평균 + 원점수 평균, 체육·예술 30점)에 비교과 만점·원점수 구간 중간값(A 95·B 85…)·체육예술 같은 수준을 가정해 성취도 평균(A=5…E=1)으로 되돌린다: 총점 ≈ 121.3 + 15.3 × 성취도 평균. 고른 과목 평균과 같은 비중으로 합친 뒤 성적대 대표값(상위 4·11·28·55·82%) 사이를 선형 보간해 내부 추정 위치를 만들고, 그 위치가 속한 성적대(5·15·40·70% 경계)로 선발형 도전 여부·분석 비중을 정한다 (`src/engine/standing.ts`). **화면에는 정밀한 '상위 X%'를 보여 주지 않는다** — 중학교·지역마다 성취도 분포와 내신 산출이 달라 같은 점수라도 위치가 다르므로, `standingRange()`가 성취도 평균 ±0.25 안에서 걸치는 성적대를 묶어 '대략적 위치: 상위~중상위권 (대략 상위 5~40%)'처럼 구간으로만 표시하고 '참고용 대략 추정 · 중학교·지역에 따라 달라짐'(`STANDING_NOTE`)을 붙인다(입력 칸·결과 배지·점수 근거 공통).
-- **희망 계열·학과(여러 개 선택)**: 입력 폼 6번과 예약 폼의 계열 칩을 여러 개 켜고 끈다(다시 누르면 해제, ‘아직 모름’ = 모두 해제, `Profile.tracks: string[]`). 계열 적합 = 고른 계열마다 2026학년도 1·2학년 시간표의 핵심 과목 개설 비율을 구해 **같은 비중으로 평균**(15~95점, 과목 목록이 긴 계열이 결과를 좌우하지 않게) + 학교 운영 가산(교과교실제·수준별 수업·자율학교) + 고른 계열 중 하나라도 맞으면 과학중점(+8)·AI 중점(+6)·외고/국제고(+30)·특성화고(±40) 가감(`trackFit`, `src/engine/score.ts`). 개설·미확인 과목 목록은 계열끼리 겹치는 과목을 한 번만 보여 주고, 점수 근거에 계열별 개설 수를 함께 적는다. 아무것도 고르지 않으면 예전 ‘아직 모름’과 같다(계열 적합 비중 ×0.35). 예약 요약·전송 필드 `희망계열`은 ‘공학, 의약·보건’처럼 쉼표로 잇는다.
+- **희망 계열·학과(여러 개 선택)**: 입력 폼 6번의 계열 칩을 여러 개 켜고 끈다(다시 누르면 해제, ‘아직 모름’ = 모두 해제, `Profile.tracks: string[]`). 계열 적합 = 고른 계열마다 2026학년도 1·2학년 시간표의 핵심 과목 개설 비율을 구해 **같은 비중으로 평균**(15~95점, 과목 목록이 긴 계열이 결과를 좌우하지 않게) + 학교 운영 가산(교과교실제·수준별 수업·자율학교) + 고른 계열 중 하나라도 맞으면 과학중점(+8)·AI 중점(+6)·외고/국제고(+30)·특성화고(±40) 가감(`trackFit`, `src/engine/score.ts`). 개설·미확인 과목 목록은 계열끼리 겹치는 과목을 한 번만 보여 주고, 점수 근거에 계열별 개설 수를 함께 적는다. 아무것도 고르지 않으면 예전 ‘아직 모름’과 같다(계열 적합 비중 ×0.35). 결과 배지 등 화면 표시(`tracksLabel`)는 ‘공학, 의약·보건’처럼 쉼표로 잇는다.
 - **간단히 선택하기(보조)**: '점수를 몰라요'를 켜면 기존 5단계 성적대로 고른다(성적대 대표값 그대로 사용).
 - **지도**: 네이버 지도 JS API v3(Web Dynamic Map, `src/components/MiniMap.tsx` + 로더 `src/lib/naverMaps.ts`, 결과 화면에서 스크립트까지 지연 로드). 공개 Client ID(`ncpKeyId`)만 쓰며 NCP 콘솔 Maps 애플리케이션의 Web 서비스 URL(`https://hdhhhdhh.github.io`, `http://localhost`)에서만 인증된다 — 로컬 확인은 포트 없는 `http://localhost`(80번)로. Client Secret은 서버 전용이라 저장소·번들에 두지 않는다. 32개 학교를 추천 상위 3(주황)·후보(네이비)·후보 외(회색)로 표시하고, 사는 동 중심에 집 모양 '집' 표시를 둔다(동을 모르면 '기준'). 스크립트를 못 불러오거나 인증에 실패하면 좌표로 그린 위치 개요도로 대신 보여 준다. 동 선택·학교 선택(마커 클릭 포함)·직선거리·카카오맵 길찾기(`https://map.kakao.com/link/to/학교명,위도,경도`, 목적지만 지정 가능)·네이버 지도 검색 링크를 제공한다. 실제 경로·소요 시간은 카카오맵에서 확인한다.
 - **수학 경쟁력**은 실제 수학 학력이 아니라 선택·심화 **과목 개설 폭의 추정**입니다. 2026학년도 1·2학년 시간표를 정제한 뒤 미적분 / 기하 / 확률과 통계 / 고급·심화 수학 / 고급 대수 / 인공지능 수학 / 수학과제 탐구 / 경제 수학의 8개 과목군을 동일 비중으로 셉니다. 점수 = 확인된 과목군 수 ÷ 8 × 100 (반올림). 공통수학·기본 대수는 공통 과정이라 가산하지 않으며, 동일 군의 과목·분반은 중복 가산하지 않습니다. 미확인은 미개설 확정이 아닙니다. 대학 진학률을 수학 성적으로 대체하지 않으며 추천 총점에는 넣지 않습니다. 수학 학업성취도는 별도 슬롯에 확보 자료만 표시하고, 없는 학교는 **수집 예정**으로 표시합니다(현재 운정고만 확보).

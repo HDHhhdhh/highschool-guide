@@ -29,7 +29,7 @@ export const TRACKS: Record<string, Track> = {
 export const TRACK_IDS = Object.keys(TRACKS).filter(k => k !== 'none');
 /** 고른 계열 — 클릭 순서와 상관없이 TRACKS 순서로 */
 export const selectedTracks = (ids: string[]): Track[] => TRACK_IDS.filter(k => ids.includes(k)).map(k => TRACKS[k]);
-/** 화면·예약 요약용 이름: '공학, 의약·보건' (없으면 '아직 모름') */
+/** 화면 표시용 이름: '공학, 의약·보건' (없으면 '아직 모름') */
 export const tracksLabel = (ids: string[]) => selectedTracks(ids).map(t => t.label).join(', ') || TRACKS.none.label;
 
 export interface StrategyDef { label: string; desc: string; w: Record<'naesin' | 'peer' | 'adv' | 'track' | 'commute' | 'env', number> }

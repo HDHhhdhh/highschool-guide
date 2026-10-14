@@ -1,4 +1,4 @@
-import { ArrowRight, ExternalLink, Info, Pencil, TriangleAlert } from 'lucide-react';
+import { ExternalLink, Info, Pencil, TriangleAlert } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
 import { ADMISSION, META, REVIEWS } from '../data';
 import { BANDS, COMPONENT_LABEL, MAIN_COMPS, SCHOOL_TYPES, STANDING_NOTE, STRATEGIES, ZONE_NAME, fmt, gradeLetter, standingRange, tracksLabel, zoneOfSgg, type Analysis, type Profile, type SubjectGrade } from '../engine';
@@ -19,7 +19,7 @@ const PAGE = 8;
 const SHORT: Record<string, string> = { naesin: '내신', peer: '면학', adv: '진학', track: '계열', commute: '통학', env: '여건' };
 const REVIEW_COUNT = REVIEWS.reduce((m, r) => m.set(r.schoolId, (m.get(r.schoolId) ?? 0) + 1), new Map<string, number>());
 
-export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Profile; analysis: Analysis; onBook: () => void; onEdit: () => void }) {
+export function Results({ profile: p, analysis, onEdit }: { profile: Profile; analysis: Analysis; onEdit: () => void }) {
   const [shown, setShown] = useState(PAGE);
   const { results, origin, rankOf } = analysis;
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
@@ -162,13 +162,10 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
 
         <div className="mt-1 flex flex-col gap-4 rounded-xl bg-secondary p-5">
           <div>
-            <h3 className="text-lg font-bold text-navy">이 결과를 가지고 상담해 보시겠어요?</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">입력한 성적대·희망 계열·강약 과목과 추천 상위 3개 학교가 예약 폼에 그대로 담깁니다. 성취도 자료가 없는 학교는 상담에서 실제 성적분포를 함께 확인하는 것을 권합니다.</p>
+            <h3 className="text-lg font-bold text-navy">조건을 바꿔 다시 비교해 보세요</h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">희망 계열·입시 전략·통학 거리 중요도를 바꾸거나 관심 있는 학교를 더하면 후보와 순위가 달라집니다. 성취도 자료가 없는 학교는 실제 성적분포를 해당 학교에 직접 확인하는 것을 권합니다.</p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button size="lg" className="h-12 rounded-xl" onClick={onBook}>이 결과로 진단평가 예약하기 <ArrowRight aria-hidden="true" /></Button>
-            <Button size="lg" variant="outline" className="h-12 rounded-xl" onClick={onEdit}><Pencil aria-hidden="true" /> 조건 다시 입력</Button>
-          </div>
+          <Button size="lg" variant="outline" className="h-12 rounded-xl sm:self-start" onClick={onEdit}><Pencil aria-hidden="true" /> 조건 다시 입력</Button>
         </div>
       </CardContent>
     </Card>

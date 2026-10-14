@@ -1,6 +1,6 @@
 // 추천 입력 폼 상태 ↔ 엔진 Profile 변환
 import { GEO, SCHOOLS } from '../data';
-import { BANDS, TRACKS, estimateStanding, parseNaesinTotal, type BandId, type CommuteWeight, type Profile, type Strategy, type Subject, type SubjectGrade } from '../engine';
+import { TRACKS, estimateStanding, parseNaesinTotal, type BandId, type CommuteWeight, type Profile, type Strategy, type Subject, type SubjectGrade } from '../engine';
 
 /** 학업 성적 입력 방식: 내신 점수(기본) 또는 성적대 대충 선택(보조) */
 export type GradeMode = 'score' | 'band';
@@ -52,7 +52,6 @@ export function toProfile(f: FinderState): Profile {
   };
 }
 
-export const bandOf = (id: BandId) => BANDS.find(b => b.id === id) || BANDS[2];
 export const trackLabel = (id: string) => (TRACKS[id] || TRACKS.none).label;
 export const schoolName = (id: string) => SCHOOLS.find(s => s.id === id)?.name ?? id;
 

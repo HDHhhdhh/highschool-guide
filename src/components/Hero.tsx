@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { SITE } from '../config';
 import { META, REVIEWS } from '../data';
 import { BlurFade } from '@/components/magicui/blur-fade';
@@ -6,7 +6,7 @@ import { NumberTicker } from '@/components/magicui/number-ticker';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export function Hero({ onStart, onBook, onReviews }: { onStart: () => void; onBook: () => void; onReviews: () => void }) {
+export function Hero({ onStart, onReviews }: { onStart: () => void; onReviews: () => void }) {
   const stats = [
     { label: '비교 대상 고등학교', value: META.count, unit: '개 학교' },
     { label: '수학 교과 편제 확인', value: META.withCourses, unit: '개 학교' },
@@ -31,12 +31,9 @@ export function Hero({ onStart, onBook, onReviews }: { onStart: () => void; onBo
           </p>
         </BlurFade>
         <BlurFade delay={0.28}>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-7 flex flex-col sm:flex-row">
             <Button size="lg" className="h-13 rounded-xl px-6 text-base sm:h-12" onClick={onStart}>
               학교 추천 시작하기 <ArrowRight aria-hidden="true" />
-            </Button>
-            <Button size="lg" variant="outline" className="h-13 rounded-xl px-6 text-base sm:h-12" onClick={onBook}>
-              <CalendarCheck aria-hidden="true" /> 진단평가 예약하기
             </Button>
           </div>
         </BlurFade>
