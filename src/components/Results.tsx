@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
-// 도로 지도(Leaflet)는 결과 화면에서만 필요하므로 따로 불러온다
+// 도로 지도(네이버 지도)는 결과 화면에서만 필요하므로 따로 불러온다
 const MiniMap = lazy(() => import('./MiniMap'));
 const PAGE = 8;
 const SHORT: Record<string, string> = { naesin: '내신', peer: '면학', adv: '진학', track: '계열', commute: '통학', env: '여건' };
@@ -79,7 +79,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
           <TriangleAlert aria-hidden="true" />
           <AlertTitle className="line-clamp-none font-semibold">읽기 전에 꼭 확인하세요</AlertTitle>
           <AlertDescription className="text-[0.8125rem] leading-relaxed text-foreground/85">
-            <p>과목별 성취도(A~E)는 {META.count}교 중 {META.withAchievement}교(운정고)만 확보했습니다(나머지 {META.count - META.withAchievement}교는 학교알리미 CAPTCHA로 조회 불가). 그 학교들의 '면학 분위기'는 졸업생 진학 지표로 <b>추정</b>한 값이고 '강점·약점 과목 궁합'은 중립입니다.</p>
+            <p>과목별 성취도(A~E)는 {META.count}개 학교 중 {META.withAchievement}개 학교(운정고)만 확보했습니다(나머지 {META.count - META.withAchievement}개 학교는 학교알리미 CAPTCHA로 조회 불가). 그 학교들의 '면학 분위기'는 졸업생 진학 지표로 <b>추정</b>한 값이고 '강점·약점 과목 궁합'은 중립입니다.</p>
             <p>중점·특색 지정은 학교알리미 공시 문서 제목과 학교 공지 기준이며(지정 통지서 본문은 미열람), 개설 과목은 2026학년도 시간표 기준이라 이후 학년도 개설을 보장하지 않습니다.</p>
           </AlertDescription>
         </Alert>
@@ -107,7 +107,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
 
         <section aria-label="상위 학교 한눈에 비교" className="rounded-xl border">
           <div className="flex items-baseline justify-between gap-2 px-4 pt-3 pb-2">
-            <h3 className="text-sm font-semibold">상위 {compare.length}개교 한눈에 비교</h3>
+            <h3 className="text-sm font-semibold">상위 {compare.length}개 학교 한눈에 비교</h3>
             <span className="text-xs text-muted-foreground">가로로 밀어 보세요</span>
           </div>
           <div className="overflow-x-auto">
@@ -120,7 +120,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
                   {MAIN_COMPS.map(k => <TableHead key={k} className="text-right">{SHORT[k]}</TableHead>)}
                   <TableHead className="text-right whitespace-nowrap">예상 내신</TableHead>
                   <TableHead className="text-right">거리</TableHead>
-                  <TableHead className="text-right pr-4">후기</TableHead>
+                  <TableHead className="text-right pr-4">리뷰</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -158,7 +158,7 @@ export function Results({ profile: p, analysis, onBook, onEdit }: { profile: Pro
         <div className="mt-1 flex flex-col gap-4 rounded-xl bg-secondary p-5">
           <div>
             <h3 className="text-lg font-bold text-navy">이 결과를 가지고 상담해 보시겠어요?</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">입력한 성적대·희망 계열·강약 과목과 추천 상위 3개교가 예약 폼에 그대로 담깁니다. 성취도 자료가 없는 학교는 상담에서 실제 성적분포를 함께 확인하는 것을 권합니다.</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">입력한 성적대·희망 계열·강약 과목과 추천 상위 3개 학교가 예약 폼에 그대로 담깁니다. 성취도 자료가 없는 학교는 상담에서 실제 성적분포를 함께 확인하는 것을 권합니다.</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button size="lg" className="h-12 rounded-xl" onClick={onBook}>이 결과로 진단평가 예약하기 <ArrowRight aria-hidden="true" /></Button>

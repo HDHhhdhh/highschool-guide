@@ -127,27 +127,45 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* 지도(Leaflet) — 학교 라벨과 '집' 표시를 디자인 토큰으로 입힌다 (MiniMap.tsx) */
-.leaflet-container {
-  font-family: var(--font-sans);
+/* 지도(네이버 지도 HTML 마커) — 학교 점·이름표와 '집' 표시를 디자인 토큰으로 입힌다 (MiniMap.tsx)
+   점: 추천 상위 3(주황)·그 밖의 후보(네이비)·후보 외(회색), 선택한 학교는 크게 + 네이비 테두리. 24px 상자가 터치 영역 */
+.school-pin {
+  @apply relative grid size-6 cursor-pointer place-items-center font-sans;
 }
-.leaflet-tooltip.map-label {
-  @apply rounded-md border-0 bg-card px-1.5 py-0.5 text-xs font-semibold text-navy shadow-card;
+.school-pin__dot {
+  @apply size-3.5 rounded-full border-2 border-card bg-muted-foreground/75;
 }
-.leaflet-tooltip.map-label--active {
+.school-pin--candidate .school-pin__dot {
+  @apply bg-navy;
+}
+.school-pin--top .school-pin__dot {
+  @apply size-4.5 bg-primary;
+}
+.school-pin--active .school-pin__dot {
+  @apply size-5.5 border-3 border-navy;
+}
+.school-pin__label {
+  @apply pointer-events-none absolute bottom-full left-1/2 mb-1 hidden -translate-x-1/2 rounded-md bg-card px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap text-navy shadow-card;
+}
+.school-pin__label::after {
+  content: "";
+  @apply absolute top-full left-1/2 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-card;
+}
+.school-pin--labeled .school-pin__label,
+.school-pin:hover .school-pin__label {
+  @apply block;
+}
+.school-pin--active .school-pin__label {
   @apply bg-navy text-primary-foreground;
 }
-.leaflet-tooltip-top.map-label::before {
-  border-top-color: var(--card);
-}
-.leaflet-tooltip-top.map-label--active::before {
-  border-top-color: var(--navy);
+.school-pin--active .school-pin__label::after {
+  @apply border-t-navy;
 }
 .home-pin {
-  @apply flex items-end justify-center;
+  @apply flex h-10 w-20 items-end justify-center font-sans;
 }
 .home-pin__badge {
-  @apply relative mb-1.5 inline-flex items-center gap-1 rounded-full border-2 border-card bg-navy px-2 py-0.5 text-sm text-primary-foreground shadow-float;
+  @apply relative mb-1.5 inline-flex items-center gap-1 rounded-full whitespace-nowrap border-2 border-card bg-navy px-2 py-0.5 text-sm text-primary-foreground shadow-float;
 }
 .home-pin__badge svg {
   @apply size-4;

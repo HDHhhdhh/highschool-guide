@@ -1,4 +1,4 @@
-// 학업 성적 입력 — 기본은 "내신 총점(200점) + 과목별 성취도", 보조로 "성적대 대충 선택하기".
+// 학업 성적 입력 — 기본은 "내신 총점(200점) + 과목별 성취도", 보조로 "성적대 간단히 선택하기".
 import { BANDS, NAESIN_MAX, NAESIN_PARTS, SUBJECTS, estimateStanding, fmt, parseNaesinTotal, type BandId, type Subject, type SubjectGrade } from '../engine';
 import type { FinderState } from '../lib/finder';
 import { GradePicker, RadioCards } from './form-blocks';
@@ -106,7 +106,7 @@ export function AcademicInput({ f, setF, error }: { f: FinderState; setF: (fn: (
       <label htmlFor="rough-mode" className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-dashed bg-muted/40 px-4 py-3">
         <Checkbox id="rough-mode" className="mt-0.5" checked={rough} onCheckedChange={v => setF(s => ({ ...s, gradeMode: v === true ? 'band' : 'score' }))} />
         <span className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold text-foreground/80">점수를 몰라요 · 성적대로 대충 선택하기</span>
+          <span className="text-sm font-semibold text-foreground/80">점수를 몰라요 · 성적대 간단히 선택하기</span>
           <span className="text-xs leading-relaxed text-muted-foreground">
             {rough ? '끄면 내신 총점·과목별 성취도 입력으로 돌아갑니다.' : '내신 총점을 모르면 켜고 다섯 단계 성적대 중 하나를 고르세요. 점수 입력보다 덜 정밀합니다.'}
           </span>

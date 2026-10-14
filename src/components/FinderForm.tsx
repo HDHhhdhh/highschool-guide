@@ -12,13 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const NONE = '__none';
 
-// 내신 점수 입력(기본)은 총점이나 과목별 성취도 중 하나 이상 필요하다. 성적대 대충 선택은 항상 값이 있다.
+// 내신 점수 입력(기본)은 총점이나 과목별 성취도 중 하나 이상 필요하다. 성적대 간단히 선택은 항상 값이 있다.
 function gradeError(f: FinderState): string | null {
   if (f.gradeMode === 'band') return null;
   const raw = f.naesinTotal.trim();
   const total = parseNaesinTotal(raw);
   if (raw && total == null) return `내신 총점은 0~${NAESIN_MAX} 사이 숫자로 입력해 주세요.`;
-  if (!estimateStanding(total, f.subjectGrades)) return '내신 총점이나 과목별 성취도를 하나 이상 입력해 주세요. 점수를 모르면 아래 ‘대충 선택하기’를 켜세요.';
+  if (!estimateStanding(total, f.subjectGrades)) return '내신 총점이나 과목별 성취도를 하나 이상 입력해 주세요. 점수를 모르면 아래 ‘간단히 선택하기’를 켜세요.';
   return null;
 }
 

@@ -79,8 +79,8 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
         {grade && <Badge variant="outline">예상 내신 {grade}대</Badge>}
         {reviews.length > 0 && (
           <Badge asChild className="border-transparent bg-navy text-primary-foreground">
-            <button type="button" onClick={scrollToReviews} title="이 카드의 학부모 후기로 이동">
-              <MessageSquareQuote aria-hidden="true" /> 학부모 후기 {reviews.length}
+            <button type="button" onClick={scrollToReviews} title="이 카드의 학교별 리뷰로 이동">
+              <MessageSquareQuote aria-hidden="true" /> 학교별 리뷰 {reviews.length}
             </button>
           </Badge>
         )}
@@ -129,15 +129,15 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground"><span className="font-semibold text-primary-deep">주황 칩</span> = 진로·융합·심화 선택 과목. 수학 경쟁력은 과목 개설 폭을 비교하는 추정치로 수학 성적·수업의 질을 뜻하지 않으며 추천 총점에 넣지 않습니다. 시간표에 없는 과목이 미개설을 확정하지는 않습니다.</p>
       </section>
 
-      <section id={`reviews-${s.id}`} aria-label={`${s.name} 학부모 후기`} className="rounded-xl border border-navy/15 bg-navy-soft/50 p-4">
+      <section id={`reviews-${s.id}`} aria-label={`${s.name} 학교별 리뷰`} className="rounded-xl border border-navy/15 bg-navy-soft/50 p-4">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h4 className="flex items-center gap-1.5 text-[0.9375rem] font-bold text-navy">
-            <MessageSquareQuote className="size-4" aria-hidden="true" /> 학부모 후기 <span className="text-primary-deep tnum">{reviews.length}건</span>
+            <MessageSquareQuote className="size-4" aria-hidden="true" /> 학교별 리뷰 <span className="text-primary-deep tnum">{reviews.length}건</span>
           </h4>
           <span className="text-xs text-muted-foreground">공개 게시글 발췌 · 원문 링크</span>
         </div>
         <ReviewList reviews={reviews} label={s.name} initial={2} />
-        <p className="mt-2 text-xs text-muted-foreground">후기는 개인 경험으로 공시 자료와 구분하며, 추천 점수에 반영하지 않습니다.</p>
+        <p className="mt-2 text-xs text-muted-foreground">리뷰는 개인 경험으로 공시 자료와 구분하며, 추천 점수에 반영하지 않습니다.</p>
       </section>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

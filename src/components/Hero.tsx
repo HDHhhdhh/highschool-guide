@@ -8,9 +8,9 @@ import { cn } from '@/lib/utils';
 
 export function Hero({ onStart, onBook, onReviews }: { onStart: () => void; onBook: () => void; onReviews: () => void }) {
   const stats = [
-    { label: '비교 대상 고등학교', value: META.count, unit: '교' },
-    { label: '수학 교과 편제 확인', value: META.withCourses, unit: '교' },
-    { label: '학부모 후기', value: REVIEWS.length, unit: '건', onClick: onReviews },
+    { label: '비교 대상 고등학교', value: META.count, unit: '개 학교' },
+    { label: '수학 교과 편제 확인', value: META.withCourses, unit: '개 학교' },
+    { label: '학교별 리뷰', value: REVIEWS.length, unit: '건', onClick: onReviews },
   ];
   return (
     <section className="bg-gradient-to-b from-muted to-background">
@@ -26,7 +26,7 @@ export function Hero({ onStart, onBook, onReviews }: { onStart: () => void; onBo
         </BlurFade>
         <BlurFade delay={0.2}>
           <p className="mt-5 max-w-[60ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
-            고양시 고등학교 {META.count}곳의 수학 선택·심화 과목 편제와 졸업생 진로, 교육 여건, 2027학년도 배정 규칙, 학부모 후기를
+            고양시 고등학교 {META.count}곳의 수학 선택·심화 과목 편제와 졸업생 진로, 교육 여건, 2027학년도 배정 규칙, 학교별 리뷰를
             아이의 내신 점수·희망 계열·통학 거리에 맞춰 정리합니다. 입력한 정보는 이 화면 안에서만 계산되고 어디에도 저장되지 않습니다.
           </p>
         </BlurFade>
@@ -46,7 +46,8 @@ export function Hero({ onStart, onBook, onReviews }: { onStart: () => void; onBo
               <>
                 <span className="block text-xs text-muted-foreground">{s.label}</span>
                 <span className="mt-1 block text-xl font-bold text-primary tnum sm:text-2xl">
-                  <NumberTicker value={s.value} className="text-primary" />{s.unit}
+                  <NumberTicker value={s.value} className="text-primary" />
+                  <span className="ml-0.5 text-sm font-semibold whitespace-nowrap sm:text-base">{s.unit}</span>
                 </span>
                 {s.onClick && <span className="mt-0.5 block text-xs font-medium text-primary-deep">모아보기 →</span>}
               </>

@@ -1,8 +1,9 @@
-// 학부모 후기 목록 — 수학/비수학 탭, 원문 출처 링크, 처음 몇 건 + 더 보기.
-// 후기는 공개 게시글 발췌이며 공시 자료와 구분하고 추천 점수에 넣지 않는다.
+// 학교별 리뷰 목록 — 수학/비수학 탭, 원문 출처 링크, 처음 몇 건 + 더 보기.
+// 리뷰는 공개 게시글 발췌이며 공시 자료와 구분하고 추천 점수에 넣지 않는다.
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import type { ParentReview } from '../engine';
+import { articleUrl } from '../lib/reviewLink';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ function splitText(text: string): { title: string | null; body: string } {
 
 export function ReviewCard({ review }: { review: ParentReview }) {
   const { title, body } = splitText(review.text);
+  const link = articleUrl(review.url); // 카페 첫 화면 등 특정 글이 아닌 주소는 '원문 보기'를 숨긴다
   return (
     <li className="rounded-lg border bg-card px-4 py-3">
       <figure>
@@ -34,8 +36,8 @@ export function ReviewCard({ review }: { review: ParentReview }) {
         <figcaption className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
           <span className="rounded-full bg-muted px-2 py-0.5">{sourceLabel(review.source)}</span>
           {review.date && <time dateTime={review.date}>{review.date}</time>}
-          {review.url && (
-            <a href={review.url} target="_blank" rel="noreferrer" className="ml-auto inline-flex items-center gap-0.5 font-medium text-primary-deep underline-offset-4 hover:underline">
+          {link && (
+            <a href={link} target="_blank" rel="noreferrer" className="ml-auto inline-flex items-center gap-0.5 font-medium text-primary-deep underline-offset-4 hover:underline">
               원문 보기 <ExternalLink className="size-3" aria-hidden="true" />
             </a>
           )}
@@ -49,14 +51,14 @@ export function ReviewList({ reviews, label, initial = 3 }: { reviews: ParentRev
   const count = (c: Category) => reviews.filter(r => r.category === c).length;
   const [tab, setTab] = useState<Category>(count('수학') ? '수학' : '비수학');
   const [expanded, setExpanded] = useState(false);
-  if (!reviews.length) return <p className="rounded-lg bg-muted/60 px-4 py-4 text-sm text-muted-foreground">아직 모은 학부모 후기가 없습니다.</p>;
+  if (!reviews.length) return <p className="rounded-lg bg-muted/60 px-4 py-4 text-sm text-muted-foreground">아직 모은 학교별 리뷰가 없습니다.</p>;
 
   return (
     <Tabs value={tab} onValueChange={v => { setTab(v as Category); setExpanded(false); }}>
-      <TabsList aria-label={`${label} 후기 분류`} className="w-full sm:w-auto">
+      <TabsList aria-label={`${label} 리뷰 분류`} className="w-full sm:w-auto">
         {REVIEW_CATEGORIES.map(c => (
           <TabsTrigger key={c} value={c} className="px-3">
-            {c} 후기 <span className="tnum text-muted-foreground">{count(c)}</span>
+            {c} 리뷰 <span className="tnum text-muted-foreground">{count(c)}</span>
           </TabsTrigger>
         ))}
       </TabsList>
@@ -72,13 +74,13 @@ export function ReviewList({ reviews, label, initial = 3 }: { reviews: ParentRev
                 </ul>
                 {entries.length > initial && (
                   <Button type="button" variant="ghost" size="sm" className="mt-1.5 h-9 w-full text-primary-deep" onClick={() => setExpanded(e => !e)} aria-expanded={expanded}>
-                    {expanded ? `${c} 후기 접기` : `${c} 후기 ${entries.length - initial}건 더 보기`}
+                    {expanded ? `${c} 리뷰 접기` : `${c} 리뷰 ${entries.length - initial}건 더 보기`}
                     <ChevronDown className={cn('transition-transform', expanded && 'rotate-180')} aria-hidden="true" />
                   </Button>
                 )}
               </>
             ) : (
-              <p className="rounded-lg bg-muted/60 px-4 py-4 text-sm text-muted-foreground">아직 모은 {c} 후기가 없습니다.</p>
+              <p className="rounded-lg bg-muted/60 px-4 py-4 text-sm text-muted-foreground">아직 모은 {c} 리뷰가 없습니다.</p>
             )}
           </TabsContent>
         );

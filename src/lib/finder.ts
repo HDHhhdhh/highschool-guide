@@ -13,7 +13,7 @@ export interface FinderState {
   gradeMode: GradeMode;
   naesinTotal: string; // 내신 총점 입력칸 그대로 ('' = 미입력)
   subjectGrades: Partial<Record<Subject, SubjectGrade>>; // 고른 과목만
-  band: BandId; // '대충 선택하기'에서 고른 성적대
+  band: BandId; // '간단히 선택하기'에서 고른 성적대
   strong: Subject[];
   weak: Subject[];
   track: string;
