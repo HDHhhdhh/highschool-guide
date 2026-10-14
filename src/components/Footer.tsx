@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="border-t bg-muted/60 py-8 pb-14">
       <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
         <p className="text-sm leading-relaxed text-muted-foreground">
-          {SITE.name}의 모든 분석과 추천은 공공데이터를 가공한 <b className="font-semibold text-foreground/80">단순 참고용 정보</b>이며 정확성·완전성을 보장하지 않습니다.
+          ‘{SITE.name}’의 모든 분석과 추천은 공공데이터를 가공한 <b className="font-semibold text-foreground/80">단순 참고용 정보</b>이며 정확성·완전성을 보장하지 않습니다.
           학교별 교육과정, 배정·입학 전형, 입시 결과 등 정확한 정보는 해당 학교와 관할 교육청에 직접 문의하시기 바랍니다. 이 서비스의 정보를 근거로 한 결정에 대해 책임지지 않습니다.
         </p>
         <p className="mt-3 text-xs text-muted-foreground/80">

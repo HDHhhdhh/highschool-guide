@@ -25,6 +25,10 @@ const admissionRules = await readFile(path.join(SRC, 'supplement', 'admission-ru
 // 지정 근거 → 짧은 표시 이름
 const DESIGNATION_LABEL = { '과학중점학교': '과학중점', 'AI 중점학교': 'AI 중점', 'AI 융합교육학급': 'AI 융합학급', 'IB 후보학교': 'IB 후보', '자율형 공립고 2.0': '자공고 2.0' };
 
+// 운영자 요청으로 비교 대상에서 빼는 학교 (경기영상과학고·고양예술고·고양일고·신원고·신일비즈니스고·일산고·일산국제컨벤션고).
+// 다시 생성해도 돌아오지 않도록 여기서 걸러낸다. src/data/reviews.json 에서도 이 id 의 후기는 두지 않는다.
+const EXCLUDED_IDS = new Set(['S090000798', 'S090005418', 'S090005599', 'S090007444', 'S090000665', 'S090000771', 'S090000775']);
+
 const KIND = { 일반고: '일반고', '자율형 공립고': '자율형 공립고', 외고: '외고', 국제고: '국제고', 예술고: '예술고', 특성화고: '특성화고' };
 const sggOf = region => region.replace(/^고양시\s*/, '');
 const cityOf = region => (region.startsWith('고양시') ? '고양시' : region);
@@ -44,6 +48,7 @@ function achData(list) {
 
 const schools = [];
 for (const e of index.schools) {
+  if (EXCLUDED_IDS.has(e.id)) continue;
   const raw = JSON.parse(await readFile(path.join(SRC, e.file), 'utf8'));
   const n = raw.normalized;
   const kind = KIND[n.schoolType?.site] || n.schoolType?.neis || '일반고';
@@ -135,7 +140,7 @@ await writeFile(
   JSON.stringify({
     capturedAt: index.capturedAt,
     count: schools.length,
-    regions: index.regions,
+    regions: schools.reduce((a, s) => { const k = s.city === s.sgg ? s.city : `${s.city} ${s.sgg}`; a[k] = (a[k] || 0) + 1; return a; }, {}),
     withCareer: schools.filter(s => s.career).length,
     withAchievement: schools.filter(s => s.achData).length,
     withCourses: schools.filter(s => s.subjects).length,

@@ -10,8 +10,10 @@ export function explain(r: Result, p: Profile): { pros: string[]; cons: string[]
   const s = r.school, m = r.m;
   const pros: string[] = [], cons: string[] = [];
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
+  // 내신 점수를 입력했으면 성적대는 그 점수로 추정한 값이다
+  const bandText = `${p.standing ? '추정 성적대' : '현재 성적대'}(${band.desc})`;
   const tr0 = TRACKS[p.track] || TRACKS.none;
-  if ((r.comps.naesin ?? 0) >= 60 && r.group === 'general') pros.push(`${p.subjectGrades ? '입력한 과목별 성취도' : `${band.label}권 학생`} 기준 예상 내신 ${gradeRange(r)}등급대로, 내신 관리에 유리한 편입니다.`);
+  if ((r.comps.naesin ?? 0) >= 60 && r.group === 'general') pros.push(`${p.standing ? '입력한 내신 점수' : `${band.label}권 학생`} 기준 예상 내신 ${gradeRange(r)}등급대로, 내신 관리에 유리한 편입니다.`);
   // 중점·특색 지정 (학교알리미 공시 문서 제목·학교 공지 기준)
   const kinds = (s.designations || []).map(x => x.kind);
   if (tr0.stem && (s.scienceFocus === true || kinds.includes('과학중점학교'))) pros.push('과학중점학교로 운영 중(2026 운영계획 공시)이라 수학·과학 심화·실험 과정이 두터운 편입니다.');
@@ -28,7 +30,7 @@ export function explain(r: Result, p: Profile): { pros: string[]; cons: string[]
   if (m.seats1 != null && m.seats1 >= 25) pros.push(`1학년이 ${s.stu?.[0]}명이라 내신 1등급(상위 10%) 자리가 약 ${m.seats1}명으로 넉넉합니다.`);
   if ((r.comps.env ?? 0) >= 70 && r.group !== 'arts') pros.push(`학급당 ${fmt(m.perClass)}명, 교원 1인당 학생 ${fmt(m.perTeacher)}명으로 교육 여건이 좋은 편입니다.`);
   if (r.selective) pros.push(`${s.kind}로, 비슷한 목표를 가진 학생들과 공부할 수 있습니다.`);
-  if (r.selective && r.intake != null && band.top <= r.intake) pros.push(`입학생이 대략 상위 ${r.intake}% 수준이라 현재 성적대(${band.desc})로 도전해 볼 만합니다. 입학 후 예상 내신은 ${gradeRange(r)}등급대입니다.`);
+  if (r.selective && r.intake != null && band.top <= r.intake) pros.push(`입학생이 대략 상위 ${r.intake}% 수준이라 ${bandText}로 도전해 볼 만합니다. 입학 후 예상 내신은 ${gradeRange(r)}등급대입니다.`);
   const ys = Object.keys(s.career || {}).sort();
   if (ys.length >= 2 && s.career) {
     const a = s.career[ys[0]], b = s.career[ys[ys.length - 1]];
@@ -43,8 +45,8 @@ export function explain(r: Result, p: Profile): { pros: string[]; cons: string[]
   else if (r.assign.kind === 'stage2-only') cons.unshift(`2단계 구역내배정으로만 갈 수 있습니다. ${r.assign.detail}`);
   if (r.selective) cons.push('입학 전형(선발)을 거쳐야 하며, 우수 학생이 모여 내신 경쟁이 매우 치열합니다.');
   const tr = TRACKS[p.track] || TRACKS.none;
-  if (r.admit === 'hard') cons.push(`입학생이 대략 상위 ${r.intake}% 수준이라 현재 성적대(${band.desc})로는 선발이 어렵고, 입학해도 내신은 ${gradeRange(r)}등급대가 될 수 있어 적합도를 낮췄습니다.`);
-  else if (r.admit === 'tough') cons.push(`입학생이 대략 상위 ${r.intake}% 수준이라 현재 성적대(${band.desc})에서는 상단이어야 도전할 수 있습니다. 입학 후 예상 내신은 ${gradeRange(r)}등급대입니다.`);
+  if (r.admit === 'hard') cons.push(`입학생이 대략 상위 ${r.intake}% 수준이라 ${bandText}로는 선발이 어렵고, 입학해도 내신은 ${gradeRange(r)}등급대가 될 수 있어 적합도를 낮췄습니다.`);
+  else if (r.admit === 'tough') cons.push(`입학생이 대략 상위 ${r.intake}% 수준이라 ${bandText}에서는 상단이어야 도전할 수 있습니다. 입학 후 예상 내신은 ${gradeRange(r)}등급대입니다.`);
   if (r.group === 'arts') cons.push('실기 중심 학교라 내신·면학 분위기 점수는 중립으로 두었습니다. 실기 준비 정도가 더 중요합니다.');
   if (r.group === 'vocational') cons.push('직업교육 중심 학교라 면학 분위기·4년제 진학은 일반고와 같은 기준으로 비교하지 않았습니다. 취업률과 학과는 학교에 확인하세요.');
   if ((s.kind === '외고' || s.kind === '국제고') && tr.stem) cons.push(`어문·국제 계열 중심이라 이공계(${tr.label}) 과목 선택이 제한적일 수 있습니다.`);
@@ -73,7 +75,7 @@ export function scoreBasis(r: Result, p: Profile, rankOf: Partial<Record<CompKey
     : `졸업생 4년제+재도전 비율 ${fmt(m.aim)}%·전출입·학생 수 추이 (성적분포 미확보 — 공시 지표 추정)`;
   const b: Record<CompKey, string> = {
     naesin: r.rankTop == null ? '실기 중심 학교라 내신 위치를 추정하지 않음'
-      : `${p.subjectGrades ? '입력한 5과목 A~E 동일 비중 평균을 성적대 대표값 사이로 보간(공식 석차 환산 아님)' : `중학교 성적대(${band.desc})`}과 경쟁 강도(${compSrc})로 본 예상 교내 위치 상위 약 ${Math.round(r.rankTop)}%, 1학년 ${s.stu?.[0] ?? '-'}명` + pos('naesin'),
+      : `${p.standing ? `입력한 내신 점수(${[p.naesinTotal != null ? `총점 ${fmt(p.naesinTotal)}점` : null, p.standing.subjectCount ? `과목 ${p.standing.subjectCount}개 성취도` : null].filter(Boolean).join('·')})로 추정한 위치 상위 약 ${Math.round(p.standing.top)}%(공식 석차 환산 아님)` : `중학교 성적대(${band.desc})`}와 경쟁 강도(${compSrc})로 본 예상 교내 위치 상위 약 ${Math.round(r.rankTop)}%, 1학년 ${s.stu?.[0] ?? '-'}명` + pos('naesin'),
     peer: (a ? '' : '(추정) 직접 측정한 지표가 아님. 추정 근거: ') + compSrc + (!a && m.dropout != null && r.group === 'general' ? ` + 학업중단율 ${fmt(m.dropout)}%(보조)` : '') + pos('peer'),
     adv: r.group === 'vocational' ? '직업계 학교라 중립값' : m.univ == null ? '졸업생 진로 데이터 없음(중간값)'
       : `최근 ${Object.keys(s.career || {}).length}년 평균 4년제 진학 ${fmt(m.univ)}%, 4년제+재도전 ${fmt(m.aim)}%` + pos('adv'),

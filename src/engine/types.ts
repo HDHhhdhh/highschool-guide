@@ -71,9 +71,20 @@ export interface ParentReview {
   source: string;
   date: string; // YYYY-MM-DD
   text: string;
+  url?: string; // 출처 원문 링크 (네이버 카페·블로그·티스토리·studyholic 등)
 }
 
 export interface Point { lat: number; lng: number }
+
+/** 내신 점수 입력(총점·과목별 성취도)으로 추정한 학생의 위치 — standing.ts */
+export interface Standing {
+  top: number; // 추정 상위 %
+  band: BandId; // 추정 위치가 속한 성적대 (선발형 학교 도전 여부·분석 비중에 사용)
+  level: number; // 합친 성취도 평균 (A=5 … E=1)
+  fromTotal: number | null; // 총점에서 환산한 성취도 평균 (A=5)
+  fromSubjects: number | null; // 입력한 과목 성취도 평균 (A=5)
+  subjectCount: number;
+}
 
 export interface Profile {
   sgg: string; // 거주 구
@@ -83,8 +94,10 @@ export interface Profile {
   middleName: string | null;
   middleSgg: string | null; // 출신 중학교 소재 구 (2단계 구역내배정 기준)
   commute: CommuteWeight;
-  band: BandId;
-  subjectGrades: Record<Subject, SubjectGrade> | null; // 더 정확하게 입력한 5과목 성취도
+  band: BandId; // 성적대 (대충 선택한 값, 또는 내신 점수로 추정한 위치의 성적대)
+  naesinTotal: number | null; // 입력한 내신 총점 (200점 만점)
+  subjectGrades: Partial<Record<Subject, SubjectGrade>> | null; // 입력한 과목별 성취도 (고른 과목만)
+  standing: Standing | null; // 내신 점수로 추정한 위치 (null = 성적대 대충 선택)
   strong: Subject[];
   weak: Subject[];
   track: string;

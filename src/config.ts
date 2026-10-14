@@ -19,6 +19,6 @@ export const BOOKING = {
 };
 
 export const SITE = {
-  name: '일산 고교 나침반',
+  name: '일산 고교 선택 도와드려요',
   tagline: '고양시 고등학교, 공시 데이터로 차분하게 비교해 보세요',
 };

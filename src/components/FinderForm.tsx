@@ -1,16 +1,26 @@
 import { ArrowRight, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { GEO, SCHOOLS } from '../data';
-import { BANDS, SCHOOL_TYPES, STRATEGIES, SUBJECTS, TRACKS, TYPES_NOT_IN_DATA, type BandId, type CommuteWeight, type Strategy, type Subject, type SubjectGrade } from '../engine';
+import { NAESIN_MAX, SCHOOL_TYPES, STRATEGIES, SUBJECTS, TRACKS, TYPES_NOT_IN_DATA, estimateStanding, parseNaesinTotal, type CommuteWeight, type Strategy, type Subject } from '../engine';
 import { toggleIn, type FinderState } from '../lib/finder';
+import { AcademicInput } from './AcademicInput';
 import { Chip, FieldBlock, RadioCards } from './form-blocks';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 
 const NONE = '__none';
+
+// 내신 점수 입력(기본)은 총점이나 과목별 성취도 중 하나 이상 필요하다. 성적대 대충 선택은 항상 값이 있다.
+function gradeError(f: FinderState): string | null {
+  if (f.gradeMode === 'band') return null;
+  const raw = f.naesinTotal.trim();
+  const total = parseNaesinTotal(raw);
+  if (raw && total == null) return `내신 총점은 0~${NAESIN_MAX} 사이 숫자로 입력해 주세요.`;
+  if (!estimateStanding(total, f.subjectGrades)) return '내신 총점이나 과목별 성취도를 하나 이상 입력해 주세요. 점수를 모르면 아래 ‘대충 선택하기’를 켜세요.';
+  return null;
+}
 
 export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubmit: (f: FinderState) => void }) {
   const [f, setF] = useState<FinderState>(initial);
@@ -21,11 +31,24 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
   const interestOptions = SCHOOLS.filter(s => !f.interest.includes(s.id));
 
   const setTrack = (t: string) => {
-    const auto = t === 'art' ? 'arts' : t === 'job' ? 'vocational' : null;
+    const auto = t === 'job' ? 'vocational' : null;
     setF(s => ({ ...s, track: t, types: auto && !s.types.includes(auto) ? [...s.types, auto] : s.types }));
   };
 
-  const submit = (e: FormEvent) => { e.preventDefault(); onSubmit(f); };
+  // 한 번 제출을 시도한 뒤에는 고치는 대로 오류 문구를 갱신한다
+  const [tried, setTried] = useState(false);
+  const error = tried ? gradeError(f) : null;
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    setTried(true);
+    if (gradeError(f)) {
+      const el = document.getElementById('naesin-total');
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      el?.focus({ preventScroll: true });
+      return;
+    }
+    onSubmit(f);
+  };
 
   return (
     <Card id="finder" className="gap-0 rounded-2xl py-0 shadow-card">
@@ -66,32 +89,8 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
             <RadioCards<CommuteWeight> label="통학 거리 중요도" compact value={f.commute} onChange={v => set('commute', v)} options={[{ value: 'low', title: '낮음' }, { value: 'mid', title: '보통' }, { value: 'high', title: '높음', desc: '가까운 학교 우대' }]} />
           </FieldBlock>
 
-          <FieldBlock num={4} label="현재 성적대" tag="중학교 내신 기준">
-            <RadioCards<BandId> label="현재 성적대" columns={2} value={f.band} onChange={v => set('band', v)}
-              options={BANDS.map(b => ({ value: b.id, title: b.label, desc: b.desc, hint: b.hint }))} />
-            <div className="mt-4 rounded-xl border bg-muted/40 p-4">
-              <label htmlFor="detailed-grades" className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-navy">
-                <Checkbox id="detailed-grades" checked={f.detailed} onCheckedChange={v => set('detailed', v === true)} />
-                더 정확하게 · 과목별 성취도 입력 (선택)
-              </label>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">최근 성적표의 국어·수학·영어·사회·과학 A~E를 입력하세요. 켜면 내신 경쟁력은 아래 5과목 기준으로 계산하고, 입학 도전 여부·분석 비중은 위 성적대를 기준으로 판단합니다.</p>
-              {f.detailed && (
-                <div className="mt-3">
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                    {SUBJECTS.map(subject => (
-                      <div key={subject}>
-                        <label id={`grade-${subject}`} className="mb-1.5 block text-sm font-medium">{subject}</label>
-                        <Select value={String(f.subjectGrades[subject])} onValueChange={v => setF(s => ({ ...s, subjectGrades: { ...s.subjectGrades, [subject]: Number(v) as SubjectGrade } }))}>
-                          <SelectTrigger aria-labelledby={`grade-${subject}`} className="w-full"><SelectValue /></SelectTrigger>
-                          <SelectContent>{['A', 'B', 'C', 'D', 'E'].map((grade, i) => <SelectItem key={grade} value={String(i + 1)}>{grade}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground">A~E를 1~5로 바꿔 동일 비중으로 평균한 뒤 기존 성적대 기준값 사이를 보간합니다. 실제 석차·고교 내신을 환산한 값이 아닌 참고용 추정입니다.</p>
-                </div>
-              )}
-            </div>
+          <FieldBlock num={4} label="내신 성적" required>
+            <AcademicInput f={f} setF={setF} error={error} />
           </FieldBlock>
 
           <FieldBlock num={5} label="강한 과목 · 약한 과목" tag="선택" hint="과목별 성적분포(A~E)가 확보된 학교(현재 운정고 1곳)에서만 궁합을 계산하고, 나머지 학교는 중립 점수로 둡니다.">

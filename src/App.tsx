@@ -4,6 +4,8 @@ import { FinderForm } from './components/FinderForm';
 import { Footer } from './components/Footer';
 import { Hero } from './components/Hero';
 import { Method } from './components/Method';
+import { NationalAutonomous } from './components/NationalAutonomous';
+import { ParentReviews } from './components/ParentReviews';
 import { Results } from './components/Results';
 import { TopBar } from './components/TopBar';
 import { SCHOOLS } from './data';
@@ -43,7 +45,8 @@ export default function App() {
   // 추천 결과 → 예약 폼으로 입력값 넘기기
   const bookWithResults = useCallback(() => {
     const top = analysis?.result.results.slice(0, 3).map(r => r.school.name) ?? [];
-    const b = bandOf(finder.band);
+    // 내신 점수를 입력했으면 그 점수로 추정한 성적대를 넘긴다
+    const b = bandOf(analysis?.profile.band ?? finder.band);
     setBookingPrefill({
       middleSchool: finder.middle,
       region: [finder.sgg, finder.dong].filter(Boolean).join(' '),
@@ -65,10 +68,16 @@ export default function App() {
       <main>
         {view === 'finder' ? (
           <>
-            <Hero onStart={() => document.getElementById('finder')?.scrollIntoView({ behavior: 'smooth' })} onBook={() => go('booking')} />
+            <Hero
+              onStart={() => document.getElementById('finder')?.scrollIntoView({ behavior: 'smooth' })}
+              onBook={() => go('booking')}
+              onReviews={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+            />
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pb-14 sm:gap-8 sm:px-6">
               <FinderForm initial={finder} onSubmit={runAnalysis} />
               {analysis && <Results profile={analysis.profile} analysis={analysis.result} onBook={bookWithResults} onEdit={() => document.getElementById('finder')?.scrollIntoView({ behavior: 'smooth' })} />}
+              <ParentReviews />
+              <NationalAutonomous />
               <Method />
             </div>
           </>

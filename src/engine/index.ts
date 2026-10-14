@@ -28,4 +28,5 @@ export { explain, scoreBasis, fmt } from './explain';
 export { distanceKm } from './pool';
 export { assignRoute, zoneOfSgg, ZONE_NAME } from './admission';
 export { groupOf, careerAvg } from './score';
-export { currentCourses, COURSE_CAVEAT, enrollmentTrend } from './derive';
+export { currentCourses, COURSE_CAVEAT, enrollmentTrend, mathCurriculum, type MathCourse, type MathTier } from './derive';
+export { NAESIN_MAX, NAESIN_PARTS, estimateStanding, gradeLetter, parseNaesinTotal, GRADE_LETTERS } from './standing';

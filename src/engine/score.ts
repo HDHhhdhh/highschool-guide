@@ -71,13 +71,9 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
     tempRatio: pctFn(col('tempRatio')), seats1: pctFn(col('seats1')), dropout: pctFn(col('dropout')),
   };
   const band = BANDS.find(b => b.id === p.band) || BANDS[2];
-  // A~E 동일 비중 평균을 기존 성적대의 대표 상위% 사이로 선형 보간한다.
+  // 내신 점수(총점·과목별 성취도)를 입력했으면 그 추정 위치(standing.ts), 성적대만 골랐으면 성적대 대표값.
   // 공식 석차 환산이 아니라 내신 경쟁력에만 쓰는 참고용 추정이다.
-  const gradeMean = p.subjectGrades ? avg(Object.values(p.subjectGrades)) : null;
-  const lower = gradeMean == null ? 0 : Math.floor(gradeMean) - 1;
-  const upper = Math.min(4, lower + 1);
-  const studentTop = gradeMean == null ? band.top
-    : BANDS[lower].top + (BANDS[upper].top - BANDS[lower].top) * (gradeMean - Math.floor(gradeMean));
+  const studentTop = p.standing ? p.standing.top : band.top;
   const track = TRACKS[p.track] || TRACKS.none;
   const w: Partial<Record<CompKey, number>> = { ...(STRATEGIES[p.strategy] || STRATEGIES.mix).w };
   w.commute! *= { low: 0.3, mid: 0.5, high: 2.0 }[p.commute || 'mid'];
@@ -110,7 +106,7 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
       } else if (selective && sp) {
         // 입학생이 상위 intake%라면, 상위 p% 학생의 교내 위치 ≈ p / intake (p는 성적대의 가운데 값)
         comp = sp.peer;
-        rankTop = Math.max(1, Math.min(99, 100 * (gradeMean == null ? (band.best + band.top) / 2 : studentTop) / sp.intake));
+        rankTop = Math.max(1, Math.min(99, 100 * (p.standing ? studentTop : (band.best + band.top) / 2) / sp.intake));
       } else if (group === 'arts') {
         comp = 0.5;
         rankTop = null; // 실기 중심이라 내신 위치를 추정하지 않음

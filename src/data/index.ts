@@ -53,10 +53,16 @@ export const SCHOOLS: School[] = (schoolsJson as unknown as School[]).map(s => (
 export const GEO: Geo = geoJson as Geo;
 export const REVIEWS: ParentReview[] = reviewsJson as ParentReview[];
 export const ADMISSION: AdmissionRules = admissionJson as AdmissionRules;
+// 개수는 실제 번들된 학교 목록에서 다시 센다 (제외 학교가 있어도 화면 숫자가 어긋나지 않게)
 export const META: Meta = {
   ...(metaJson as Meta),
+  count: SCHOOLS.length,
+  regions: SCHOOLS.reduce<Record<string, number>>((a, s) => { const k = s.city === s.sgg ? s.city : `${s.city} ${s.sgg}`; a[k] = (a[k] || 0) + 1; return a; }, {}),
   withAchievement: SCHOOLS.filter(s => s.achData).length,
   withCareer: SCHOOLS.filter(s => s.career).length,
+  withCourses: SCHOOLS.filter(s => s.subjects).length,
+  withDropout: SCHOOLS.filter(s => s.dropoutRate != null).length,
+  withDesignation: SCHOOLS.filter(s => s.designations?.length).length,
 };
 
 export const schoolById = (id: string) => SCHOOLS.find(s => s.id === id);

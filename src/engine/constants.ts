@@ -35,12 +35,12 @@ export const STRATEGIES: Record<Strategy, StrategyDef> = {
 };
 
 export interface SchoolTypeDef { label: string; kinds: Kind[]; scope: 'near' | 'sido' | 'far'; note: string }
-// 일반고 외에 사용자가 골라야 후보에 들어가는 학교 유형. 이 데이터(고양시 39교)에 실제로 있는 유형만 둔다.
+// 일반고 외에 사용자가 골라야 후보에 들어가는 학교 유형. 이 데이터(32교)에 실제로 있는 유형만 둔다.
+// (운영자 요청으로 경기영상과학고·고양예술고·고양일고·신원고·신일비즈니스고·일산고·일산국제컨벤션고 7교는 비교 대상에서 제외)
 export const SCHOOL_TYPES: Record<string, SchoolTypeDef> = {
-  autonomous: { label: '자율형 공립고', kinds: ['자율형 공립고'], scope: 'near', note: '백석고' },
+  autonomous: { label: '자율형 공립고', kinds: ['자율형 공립고'], scope: 'near', note: '백석고 · 저현고' },
   foreign: { label: '외고·국제고', kinds: ['외고', '국제고'], scope: 'sido', note: '고양외고 · 고양국제고' },
-  arts: { label: '예술고', kinds: ['예술고'], scope: 'sido', note: '고양예술고' },
-  vocational: { label: '특성화고', kinds: ['특성화고'], scope: 'far', note: '일산고 · 경기영상과학고 등 5교' },
+  vocational: { label: '특성화고', kinds: ['특성화고'], scope: 'far', note: '고양고' },
 };
 export const TYPES_NOT_IN_DATA = '자사고·과학고·영재학교·마이스터고는 고양시 안에 없어 이 도구의 비교 대상이 아닙니다.';
 

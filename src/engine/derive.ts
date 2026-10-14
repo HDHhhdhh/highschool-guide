@@ -54,6 +54,37 @@ export function mathCompetitiveness(s: School): MathCompetitiveness {
   return { score: courses?.length ? Math.round(100 * offered.length / families.length) : null, offered, unconfirmed };
 }
 
+// 수학 교과 편제(학년별 수학 과목) — 2026학년도 NEIS 시간표에서 수학 과목만 골라 정리한다.
+// 1·2학년은 2022 개정, 3학년은 2015 개정 교육과정. 시간표에 없는 과목이 미개설을 확정하지는 않는다.
+export type MathTier = 'common' | 'general' | 'advanced'; // 공통 · 일반선택 · 진로·융합·심화
+export interface MathCourse { name: string; tier: MathTier }
+const MATH_COURSE = /^(공통수학|기본수학|수학|대수|미적분|확률과\s*통계|기하|경제\s*수학|인공지능\s*수학|고급\s*(수학|대수|미적분|기하)|심화\s*수학|실용\s*(수학|통계)|직무\s*수학)/;
+const COMMON_MATH = /^(공통수학|기본수학)/;
+const GENERAL_MATH = /^(대수|미적분Ⅰ?|확률과 통계|수학[ⅠⅡ]?)$/; // 2022 일반선택(대수·미적분Ⅰ·확률과 통계), 2015 일반선택(수학Ⅰ·Ⅱ·미적분·확률과 통계)
+
+// 시간표 원자료에 같은 과목명이 두 번 이어 붙은 경우(기하기하, 확률과 통계확률과통계)와 (가)·(나) 분반 표기를 정리한다
+function tidyMathName(raw: string): string {
+  let s = raw.replace(/\s*\([가-하]\)$/, '').trim();
+  const compact = s.replace(/\s+/g, '');
+  const half = compact.length / 2;
+  if (Number.isInteger(half) && compact.slice(0, half) === compact.slice(half)) {
+    let seen = 0, cut = 0;
+    while (cut < s.length && seen < half) { if (!/\s/.test(s[cut])) seen++; cut++; }
+    s = s.slice(0, cut).trim();
+  }
+  return s.replace(/^확률과\s*통계$/, '확률과 통계');
+}
+
+export function mathCurriculum(s: School): Record<'1' | '2' | '3', MathCourse[]> | null {
+  const c = cleanCourses(s.subjects);
+  if (!c) return null;
+  const pick = (g: string) => {
+    const names = [...new Set((c[g] || []).filter(n => MATH_COURSE.test(n.replace(/\s+/g, ' '))).map(tidyMathName))];
+    return names.map((name): MathCourse => ({ name, tier: COMMON_MATH.test(name) ? 'common' : GENERAL_MATH.test(name) ? 'general' : 'advanced' }));
+  };
+  return { '1': pick('1'), '2': pick('2'), '3': pick('3') };
+}
+
 // 학년별 학생 수 → 신입생 추세 (1학년 vs 3학년, ±5%)
 export function enrollmentTrend(stu: number[] | null): string | null {
   const [g1, , g3] = stu || [];

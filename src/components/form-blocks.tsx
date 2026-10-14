@@ -1,6 +1,7 @@
 // 폼 조립 블록 — shadcn/ui 프리미티브(RadioGroup·Label·Button·Badge) 위의 얇은 패턴.
 // "radio cards"(라벨 카드 안에 RadioGroupItem) 패턴과 aria-pressed 토글 칩만 정의한다.
 import type { ReactNode } from 'react';
+import { GRADE_LETTERS, type SubjectGrade } from '../engine';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -51,6 +52,39 @@ export function RadioCards<T extends string | number>({ value, onChange, options
         );
       })}
     </RadioGroup>
+  );
+}
+
+/** 과목 성취도 A~E 한 줄 선택 (다시 누르면 해제). emphasize = 강조 과목(수학) */
+export function GradePicker({ subject, value, onChange, emphasize }: { subject: string; value: SubjectGrade | undefined; onChange: (v: SubjectGrade | undefined) => void; emphasize?: boolean }) {
+  const id = `grade-${subject}`;
+  return (
+    <div className={cn('grid grid-cols-[3.25rem_1fr] items-center gap-2 rounded-lg', emphasize && '-mx-2 bg-secondary/60 px-2 py-1.5')}>
+      <span id={id} className={cn('text-[0.9375rem] font-semibold', emphasize ? 'text-primary-deep' : 'text-foreground/80')}>{subject}</span>
+      <div role="radiogroup" aria-labelledby={id} className="grid grid-cols-5 gap-1.5">
+        {GRADE_LETTERS.map((letter, i) => {
+          const g = (i + 1) as SubjectGrade;
+          const on = value === g;
+          return (
+            <button
+              key={letter}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              aria-label={`${subject} ${letter}`}
+              onClick={() => onChange(on ? undefined : g)}
+              className={cn(
+                'h-10 rounded-lg border bg-card text-[0.9375rem] font-semibold text-foreground/70 transition-colors outline-none',
+                'hover:border-primary/50 hover:bg-secondary/40 focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                on && 'border-primary bg-secondary text-primary-deep ring-1 ring-primary',
+              )}
+            >
+              {letter}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
