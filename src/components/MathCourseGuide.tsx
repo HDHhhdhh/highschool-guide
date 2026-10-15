@@ -23,7 +23,7 @@ export function MathCourseGuide() {
   return (
     <section id="math-guide" aria-labelledby="math-guide-title" className="rounded-2xl border bg-card p-5 shadow-card sm:p-8">
       <p className="text-sm font-semibold text-primary-deep">고교학점제 · 2022 개정 교육과정</p>
-      <h2 id="math-guide-title" className="mt-1 text-2xl font-bold tracking-tight text-navy">수학 과목 선택 가이드</h2>
+      <h2 id="math-guide-title" className="mt-1 text-2xl font-bold tracking-tight text-navy">고교학점제 수학 선택 가이드</h2>
       <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-muted-foreground">
         2025년 고1부터 적용된 2022 개정 교육과정 기준입니다. 공통수학 → 일반선택 → 진로·융합선택 순서로 쌓이며,
         어떤 과목을 몇 학년에 여는지는 학교 편제마다 다릅니다. 특정 학교가 아니라 계열별로 일반적인 흐름을 정리했습니다.
@@ -112,7 +112,7 @@ export function MathCourseGuide() {
         </ol>
       </div>
       <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-        학교별 2026학년도 수학 편제는 위 ‘궁금한 학교 정보를 한눈에’에서 학교를 골라 확인하세요. 이 가이드는 일반적인 흐름이며,
+        학교별 2026학년도 수학 편제는 아래 ‘궁금한 학교 정보를 한눈에’에서 학교를 골라 확인하세요. 이 가이드는 일반적인 흐름이며,
         대학별 권장 과목과 반영 방식은 해마다 바뀔 수 있어 지원 학년도의 공식 안내로 다시 확인하세요.
       </p>
     </section>
