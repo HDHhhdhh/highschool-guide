@@ -130,7 +130,7 @@ export function scorePool(pool: School[], p: Profile, dist: Map<string, number |
       const env = 100 * (m.dropout != null ? 0.85 * envCore + 0.15 * (1 - pct.dropout(m.dropout)) : envCore);
 
       const comps: Partial<Record<CompKey, number>> = { naesin, peer, adv, track: trackScore.score, commute, env };
-      const fit = ach && useSubj && (group === 'general' || selective) ? subjectFit(ach, p) : null;
+      const fit = ach && useSubj ? subjectFit(ach, p) : null;
       if (useSubj) comps.subjFit = fit ? fit.score : 50;
       let total = (Object.entries(comps) as [CompKey, number][]).reduce((a, [k, v]) => a + (w[k] || 0) * v, 0);
       // 선발형: 학생 성적대로 입학이 어려우면 적합도를 낮춘다

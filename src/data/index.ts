@@ -50,7 +50,7 @@ export interface AdmissionRules {
   };
 }
 
-const extra = extraJson as Record<string, Partial<School>>;
+const extra = extraJson as unknown as Record<string, Partial<School>>;
 
 export const SCHOOLS: School[] = (schoolsJson as unknown as School[]).map(s => (extra[s.id] ? { ...s, ...extra[s.id] } : s));
 export const GEO: Geo = geoJson as Geo;

@@ -83,7 +83,7 @@ export function Results({ profile: p, analysis, onEdit }: { profile: Profile; an
           <TriangleAlert aria-hidden="true" />
           <AlertTitle className="line-clamp-none font-semibold">읽기 전에 꼭 확인하세요</AlertTitle>
           <AlertDescription className="text-[0.8125rem] leading-relaxed text-foreground/85">
-            <p>과목별 성취도(A~E)는 {META.count}개 학교 중 {META.withAchievement}개 학교(운정고)만 확보했습니다(나머지 {META.count - META.withAchievement}개 학교는 학교알리미 CAPTCHA로 조회 불가). 그 학교들의 '면학 분위기'는 졸업생 진학 지표로 <b>추정</b>한 값이고 '강점·약점 과목 궁합'은 중립입니다.</p>
+            <p>과목별 성적분포(A~E)를 {META.withAchievement}개 학교 모두 확보해, 강·약 과목을 고르면 전 학교에 궁합을 반영합니다. 성취도 비율은 학교 실력이 아닌 참고 지표이며, 궁합과 예상 내신은 정밀한 예측이 아닙니다.</p>
             <p>중점·특색 지정은 학교알리미 공시 문서 제목과 학교 공지 기준이며(지정 통지서 본문은 미열람), 개설 과목은 2026학년도 시간표 기준이라 이후 학년도 개설을 보장하지 않습니다.</p>
             <p><b>{INDICATOR_TITLE}.</b> {INDICATOR_BODY} <Cites ids={INDICATOR_REFS} /></p>
           </AlertDescription>
@@ -170,7 +170,7 @@ export function Results({ profile: p, analysis, onEdit }: { profile: Profile; an
         <div className="mt-1 flex flex-col gap-4 rounded-xl bg-secondary p-5">
           <div>
             <h3 className="text-lg font-bold text-navy">조건을 바꿔 다시 비교해 보세요</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">희망 계열·입시 전략·통학 거리 중요도를 바꾸거나 관심 있는 학교를 더하면 후보와 순위가 달라집니다. 성취도 자료가 없는 학교는 실제 성적분포를 해당 학교에 직접 확인하는 것을 권합니다.</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">강·약 과목·희망 계열·입시 전략·통학 거리 중요도를 바꾸거나 관심 있는 학교를 더하면 후보와 순위가 달라집니다. 성적분포와 시험 난이도는 해마다 달라질 수 있으니 학교에 직접 확인하는 것을 권합니다.</p>
           </div>
           <Button size="lg" variant="outline" className="h-12 rounded-xl sm:self-start" onClick={onEdit}><Pencil aria-hidden="true" /> 조건 다시 입력</Button>
         </div>

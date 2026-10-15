@@ -98,7 +98,7 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
             <AcademicInput f={f} setF={setF} error={error} />
           </FieldBlock>
 
-          <FieldBlock num={5} label="강한 과목 · 약한 과목" tag="선택" hint="과목별 성적분포(A~E)가 확보된 학교(현재 운정고 1곳)에서만 궁합을 계산하고, 나머지 학교는 중립 점수로 둡니다.">
+          <FieldBlock num={5} label="강한 과목 · 약한 과목" tag="선택" hint="과목별 성적분포(A~E)를 32개 학교 모두 확보해, 강·약 과목을 고르면 전 학교에 궁합을 반영합니다. 성취도 비율은 학교 실력이 아닌 참고 지표입니다.">
             <div className="flex flex-col gap-3">
               {(['strong', 'weak'] as const).map(kind => (
                 <div key={kind} className="grid grid-cols-[4.5rem_1fr] items-center gap-2">

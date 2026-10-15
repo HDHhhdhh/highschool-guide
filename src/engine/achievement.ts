@@ -1,5 +1,5 @@
 // 교과별 학업성취(성적분포) 분석 — 참조 achievement.js 이식.
-// 기준: 1학년 공통과목(모든 학생이 들어 학교 간 비교가 공정). 이 데이터에서는 운정고 1교만 확보.
+// 기준: 1학년 공통과목. 32개 학교 모두 확보했으며, 학교별 시험 난이도·A 기준 차이를 고려할 참고 지표다.
 import { SUBJECTS } from './constants';
 import type { AchCore, AchProfile, AchRow, Profile, School, Subject, SubjectFit } from './types';
 
