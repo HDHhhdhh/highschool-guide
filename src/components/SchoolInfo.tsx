@@ -32,7 +32,7 @@ export function SchoolInfo() {
       <select id="school-picker" value={schoolId} onChange={e => setSchoolId(e.target.value)} className="h-12 w-full min-w-0 rounded-lg border bg-background px-3 text-base">
         {[...SCHOOLS].sort((a, b) => a.name.localeCompare(b.name, 'ko')).map(school => <option key={school.id} value={school.id}>{school.name} · {school.sgg}</option>)}
       </select>
-      <article key={s.id} aria-label={`${s.name} 학교 정보`} className="mt-5 grid min-w-0 grid-cols-1 items-start gap-4 sm:grid-cols-2">
+      <article key={s.id} aria-label={`${s.name} 학교 정보`} className="mt-5 grid min-w-0 grid-cols-1 items-start gap-4">
         <Disclosure id="school-basic" title={`${s.name} · 학교 기본정보`}>
         <header className="rounded-xl bg-secondary/40 p-4">
           <h3 className="text-xl font-bold text-navy">{s.name}</h3>
