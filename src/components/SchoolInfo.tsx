@@ -67,10 +67,10 @@ export function SchoolInfo() {
           {s.stu && <p className="mt-2 text-sm">학년별 학생 수: {s.stu.map((n, i) => `${i + 1}학년 ${n}명`).join(' · ')}</p>}
           <p className="mt-2 text-sm">지정·운영: {[s.autonomous && '자율학교', s.subjRoom && '교과교실제', s.levelClass && '수준별 수업', ...s.designations.map(d => `${d.label}${d.evidence ? ` (${d.evidence})` : ''}`)].filter(Boolean).join(' · ') || '특이 사항 없음 (공시 표 기준)'}</p>
           <p className="mt-2 text-sm">학업중단율: {s.dropoutRate == null ? '공시 미확보' : `${s.dropoutYear}학년도 ${fmt(s.dropoutRate)}% (전출 제외)`}</p>
-          {s.achData ? Object.entries(s.achData).map(([term, grades]) => <div key={term} className="mt-3">
+          {s.achData ? Object.entries(s.achData).sort(([a], [b]) => b.localeCompare(a)).map(([term, grades]) => <div key={term} className="mt-3">
             <h4 className="font-semibold">{term} 성취도</h4>
             {Object.entries(grades).map(([year, rows]) => <div key={year} className="mt-2 overflow-x-auto">
-              <table className="w-full text-left text-xs"><caption className="text-left">{year}학년 · 학교알리미 공시</caption><thead><tr><th className="p-2">과목</th><th>평균</th><th>A~E 비율 (3단계 과목은 A~C)</th></tr></thead><tbody>{rows.map(([name, avg, rates]) => <tr key={name} className="border-t"><td className="p-2">{name}</td><td>{avg}</td><td>{rates.map(v => `${v}%`).join(' / ')}</td></tr>)}</tbody></table>
+              <table className="w-full text-left text-xs"><caption className="text-left">{year}학년 · 학교알리미 공시</caption><thead><tr><th className="p-2">과목</th><th>평균</th><th>A~E 비율 (3단계 과목은 A~C)</th></tr></thead><tbody>{rows.map(([name, avg, rates], i) => <tr key={`${name}-${i}`} className="border-t"><td className="p-2">{name}</td><td>{avg}</td><td>{rates.map(v => `${v}%`).join(' / ')}</td></tr>)}</tbody></table>
             </div>)}
           </div>) : <p className="mt-3 rounded-lg bg-warn-soft p-3 text-sm">과목별 성취도 미확보 — 학교알리미 CAPTCHA로 수집하지 못했습니다. 실제 성적분포·시험 난이도는 학교에 확인하세요. 자료 없음은 낮은 실력을 뜻하지 않습니다.</p>}
           <CardShortcut target="article-schoolinfoA">교빛 · 성취도·내신 지표 해석</CardShortcut>
