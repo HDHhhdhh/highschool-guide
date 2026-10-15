@@ -112,7 +112,7 @@ export function MathCourseGuide() {
         </ol>
       </div>
       <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-        학교별 2026학년도 수학 편제는 학교 추천 결과의 각 학교 카드 ‘5A 수학 관점’에서 볼 수 있습니다. 이 가이드는 일반적인 흐름이며,
+        학교별 2026학년도 수학 편제는 위 ‘궁금한 학교 정보를 한눈에’에서 학교를 골라 확인하세요. 이 가이드는 일반적인 흐름이며,
         대학별 권장 과목과 반영 방식은 해마다 바뀔 수 있어 지원 학년도의 공식 안내로 다시 확인하세요.
       </p>
     </section>

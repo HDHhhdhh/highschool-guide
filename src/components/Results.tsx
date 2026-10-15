@@ -4,6 +4,7 @@ import { ADMISSION, META, REVIEWS } from '../data';
 import { BANDS, COMPONENT_LABEL, MAIN_COMPS, SCHOOL_TYPES, STANDING_NOTE, STRATEGIES, ZONE_NAME, fmt, gradeLetter, standingRange, tracksLabel, zoneOfSgg, type Analysis, type Profile, type SubjectGrade } from '../engine';
 import { INDICATOR_BODY, INDICATOR_REFS, INDICATOR_TITLE, IndicatorNote } from './IndicatorNote';
 import { SchoolCard } from './SchoolCard';
+import { Disclosure } from './Disclosure';
 import { Cites } from './SourceLinks';
 import { BlurFade } from '@/components/magicui/blur-fade';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -55,6 +56,7 @@ export function Results({ profile: p, analysis, onEdit }: { profile: Profile; an
           {p.weak.length > 0 && <Badge variant="secondary">약한 과목 {p.weak.join('·')}</Badge>}
         </div>
 
+        <Disclosure title="추천 해석 · 가중치·배정 규칙·자료의 한계">
         <div className="rounded-lg border bg-muted/60 px-4 py-3 text-sm" aria-label="이번 분석의 가중치">
           <b className="font-semibold">이번 분석의 비중</b>
           <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
@@ -105,10 +107,14 @@ export function Results({ profile: p, analysis, onEdit }: { profile: Profile; an
           <IndicatorNote className="mt-1.5" />
         </section>
 
+        </Disclosure>
+        <Disclosure title="추천 후보 지도 · 집 기준 거리" mountOnOpen>
         <Suspense fallback={<div className="grid h-88 place-items-center rounded-xl border bg-muted/40 text-sm text-muted-foreground sm:h-104">지도를 불러오는 중…</div>}>
           <MiniMap results={results} origin={origin} originLabel={p.originLabel} homeIsDong={p.dongName != null} />
         </Suspense>
+        </Disclosure>
 
+        <Disclosure title="상위 후보 지표 비교표">
         <section aria-label="상위 학교 한눈에 비교" className="rounded-xl border">
           <div className="flex items-baseline justify-between gap-2 px-4 pt-3 pb-2">
             <h3 className="text-sm font-semibold">상위 {compare.length}개 학교 한눈에 비교</h3>
@@ -147,6 +153,7 @@ export function Results({ profile: p, analysis, onEdit }: { profile: Profile; an
           <IndicatorNote className="border-t px-4 py-2.5" />
         </section>
 
+        </Disclosure>
         <ol className="flex flex-col gap-4">
           {results.slice(0, shown).map((r, i) => (
             <li key={r.school.id}>

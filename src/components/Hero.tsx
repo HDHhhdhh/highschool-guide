@@ -20,20 +20,20 @@ export function Hero({ onStart, onReviews }: { onStart: () => void; onReviews: (
         </BlurFade>
         <BlurFade delay={0.12}>
           <h1 className="mt-3 text-[1.9rem] leading-[1.22] font-extrabold tracking-[-0.02em] text-navy sm:text-5xl sm:leading-[1.15]">
-            우리 아이에게 맞는 고등학교,
-            <span className="block text-balance"><span className="text-primary">수학 교육과정</span>까지 비교해 보세요</span>
+            궁금한 고등학교,
+            <span className="block text-balance"><span className="text-primary">학교 정보를 한눈에</span> 확인하세요</span>
           </h1>
         </BlurFade>
         <BlurFade delay={0.2}>
           <p className="mt-5 max-w-[60ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
             고양시 고등학교 {META.count}곳의 수학 선택·심화 과목 편제와 졸업생 진로, 교육 여건, 2027학년도 배정 규칙, 학교별 리뷰를
-            아이의 내신 점수·희망 계열·통학 거리에 맞춰 정리합니다. 입력한 정보는 이 화면 안에서만 계산되고 어디에도 저장되지 않습니다.
+            학교별로 모았습니다. 먼저 궁금한 학교를 찾아보고, 교빛 기사로 정보를 해석해 보세요. 조건별 추천은 참고용 보조 도구입니다.
           </p>
         </BlurFade>
         <BlurFade delay={0.28}>
           <div className="mt-7 flex flex-col sm:flex-row">
             <Button size="lg" className="h-13 rounded-xl px-6 text-base sm:h-12" onClick={onStart}>
-              학교 추천 시작하기 <ArrowRight aria-hidden="true" />
+              학교 정보 찾아보기 <ArrowRight aria-hidden="true" />
             </Button>
           </div>
         </BlurFade>

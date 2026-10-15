@@ -79,7 +79,7 @@ export function MathWhy({ onGuide }: { onGuide: () => void }) {
       <div className="mt-4 flex flex-col gap-3 rounded-xl bg-navy-soft px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p className="text-sm leading-relaxed text-foreground/85">
           그래서 이 설명회는 고등학교를 <b className="font-semibold text-navy">수학 공부 환경</b>으로 봅니다. 어떤 수학 과목을 열고, 내신 경쟁은 어떤지,
-          진학으로 어떻게 이어지는지를 학교 추천 결과의 ‘5A 수학 관점’과 아래 가이드에서 이어서 확인하세요.
+          진학으로 어떻게 이어지는지를 위 학교 정보와 아래 가이드에서 이어서 확인하세요.
         </p>
         <Button variant="outline" size="sm" className="h-10 shrink-0 rounded-lg bg-card" onClick={onGuide}>
           계열별 수학 과목 가이드 <ArrowDown aria-hidden="true" />

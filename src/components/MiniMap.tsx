@@ -20,7 +20,7 @@ const token = (name: string) => getComputedStyle(document.documentElement).getPr
 // 지도 스크립트를 불러온 뒤에만 부른다
 const latLng = (p: { lat: number | null; lng: number | null }) => new naver.maps.LatLng(p.lat!, p.lng!);
 
-type MiniMapProps = { results: Result[]; origin: Point | null; originLabel: string; homeIsDong: boolean };
+type MiniMapProps = { results: Result[]; origin: Point | null; originLabel: string; homeIsDong: boolean; initialSchoolId?: string };
 
 // 외부 지도 스크립트에서 예상 못 한 오류가 나도 결과 화면 전체가 멈추지 않게 이 영역만 안내 문구로 바꾼다
 class MapBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -45,9 +45,9 @@ export default function MiniMap(props: MiniMapProps) {
   );
 }
 
-function MapSection({ results, origin, originLabel, homeIsDong }: MiniMapProps) {
+function MapSection({ results, origin, originLabel, homeIsDong, initialSchoolId }: MiniMapProps) {
   const [homeKey, setHomeKey] = useState(ORIGIN);
-  const [schoolId, setSchoolId] = useState(results[0]?.school.id ?? SCHOOLS[0].id);
+  const [schoolId, setSchoolId] = useState(initialSchoolId ?? results[0]?.school.id ?? SCHOOLS[0].id);
   const [status, setStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const homeDong = GEO.dongs.find(d => `${d.sgg}/${d.name}` === homeKey);
   const home: Point | null = homeDong ? { lat: homeDong.lat, lng: homeDong.lng } : origin;
@@ -106,7 +106,10 @@ function MapSection({ results, origin, originLabel, homeIsDong }: MiniMapProps) 
 
   // 처음, 그리고 집 위치가 바뀌면 집과 추천 후보가 모두 보이게 맞춘다 ('전체 보기'는 비교 대상 전체)
   useEffect(() => {
-    if (status === 'ready') fitTo('candidates');
+    if (status === 'ready') {
+      if (initialSchoolId) pick(initialSchoolId);
+      else fitTo('candidates');
+    }
   }, [status, home?.lat, home?.lng]);
 
   // 학교·집 표시 다시 그리기 — HTML 마커라 색·글꼴은 globals.css 의 토큰 클래스로 입힌다
@@ -215,9 +218,11 @@ function MapSection({ results, origin, originLabel, homeIsDong }: MiniMapProps) 
           {status === 'loading' && <p className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-muted-foreground">지도를 불러오는 중…</p>}
         </div>
         <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-primary" aria-hidden="true" />추천 상위 3개 학교</span>
-          <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-navy" aria-hidden="true" />그 밖의 후보</span>
-          <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-muted-foreground/75" aria-hidden="true" />후보 외 학교</span>
+          {!initialSchoolId && <>
+            <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-primary" aria-hidden="true" />추천 상위 3개 학교</span>
+            <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-navy" aria-hidden="true" />그 밖의 후보</span>
+          </>}
+          <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-muted-foreground/75" aria-hidden="true" />{initialSchoolId ? '학교 위치 · 선택한 학교는 이름 표시' : '후보 외 학교'}</span>
           <span className="inline-flex items-center gap-1.5"><span className="rounded-full bg-navy px-1.5 text-[0.6875rem] font-bold text-primary-foreground" aria-hidden="true">{homeTag}</span>{homeLabel}</span>
           {status === 'ready' && <span className="sm:hidden">두 손가락으로 확대·축소</span>}
         </figcaption>
@@ -241,7 +246,7 @@ function MapSection({ results, origin, originLabel, homeIsDong }: MiniMapProps) 
       )}
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
         길찾기는 카카오맵에서 도착지(학교)가 정해진 채로 열리고, 출발지(현재 위치 또는 직접 입력)를 정하면 대중교통·자동차 경로와 소요 시간을 볼 수 있습니다.
-        여기서 바꾼 집 위치는 지도에만 적용되므로, 추천 점수·배정 조건을 바꾸려면 학생 정보의 사는 지역을 수정하고 다시 분석하세요.
+        {!initialSchoolId && '여기서 바꾼 집 위치는 지도에만 적용되므로, 추천 점수·배정 조건을 바꾸려면 학생 정보의 사는 지역을 수정하고 다시 분석하세요.'}
       </p>
     </section>
   );

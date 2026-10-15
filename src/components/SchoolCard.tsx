@@ -4,6 +4,7 @@ import { REVIEWS } from '../data';
 import { COMPONENT_LABEL, COURSE_CAVEAT, explain, fmt, gradeLetter, mathCurriculum, scoreBasis, type CompKey, type MathCourse, type Profile, type Result } from '../engine';
 import { kakaoDirectionsUrl, naverMapUrl } from '../lib/directions';
 import { IndicatorNote } from './IndicatorNote';
+import { Disclosure } from './Disclosure';
 import { ReviewList } from './ReviewList';
 import { ScoreBars } from './ScoreBars';
 import { Badge } from '@/components/ui/badge';
@@ -45,7 +46,12 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
   const reviews = REVIEWS.filter(review => review.schoolId === s.id);
   const curriculum = mathCurriculum(s);
   const myMath = profile.subjectGrades?.수학;
-  const scrollToReviews = () => document.getElementById(`reviews-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToReviews = () => {
+    const reviews = document.getElementById(`reviews-${s.id}`);
+    const button = reviews?.closest('[hidden]')?.previousElementSibling?.querySelector('button');
+    if (button?.getAttribute('aria-expanded') === 'false') button.click();
+    requestAnimationFrame(() => reviews?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
 
   return (
     <article
@@ -98,6 +104,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
       <p className="text-sm text-muted-foreground">{r.persona.desc}</p>
       <p className="rounded-md bg-muted px-3 py-2 text-[0.8125rem] leading-snug"><b className="font-semibold">배정·전형</b> <span className="text-foreground/80">{r.assign.route}</span></p>
 
+      <Disclosure title="참고 지표·수학 편제·리뷰·추천 해석">
       <ScoreBars r={r} />
       <IndicatorNote />
 
@@ -156,6 +163,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
           </div>
         )}
       </div>
+      </Disclosure>
 
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger asChild>
