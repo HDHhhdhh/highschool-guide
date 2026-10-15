@@ -36,11 +36,10 @@ export const REFS = {
   schoolinfoA: { publisher: K, title: "2028 대입, 일반고 선택의 나침반 '학교알리미' ... 수학 A비율 5%의 의미는?", date: '2025-12-07', url: kyobit(2868), via: 'kyobit' },
   schoolinfoGuide: { publisher: K, title: "한국교육개발원, '학교알리미' 활용법 공개... 내신 5등급제 학부모 정보 격차 해법 제", date: '2026-05-03', url: kyobit(5243), via: 'kyobit' },
   scienceFocus: { publisher: K, title: '과학중점고, 내신 불리할까…2028 대입서 달라진 손익계산', date: '2026-08-20', url: kyobit(6684), via: 'kyobit' },
-  // 고교 설명회·과목 개설
-  sessionChecklist: { publisher: K, title: '합격보다 중요한 ‘입학 후 3년’…고교 설명회에서 확인할 것들', date: '2026-08-13', url: kyobit(6633), via: 'kyobit' },
+  // 과목 개설·공동교육과정
   jointCurriculum: { publisher: K, title: "고교학점제 '공동교육과정', 우리 학교에 없는 과목도 정식 이수한다", date: '2026-06-28', url: kyobit(5948), via: 'kyobit' },
   goyangShared: { publisher: K, title: "고양교육지원청, '고양공유학교 학점인정형' 제도 확대... 학생 맞춤형 진로 설계 돕는다", date: '2026-03-24', url: kyobit(4696), via: 'kyobit' },
-  // 퀴트린(고등 내신강사) — 원문 확인: 예비고1 설명회마다 '중학교 A ≠ 고교 1등급'을 이야기해 왔다는 글
+  // 퀴트린(고등 내신강사) — 원문 확인: '중학교 A ≠ 고교 1등급'을 이야기해 왔다는 글
   quitrinGrade5: { publisher: '퀴트린 블로그', title: '고교내신 5등급제 뚜껑 열림', date: '2025-05-18', url: 'https://blog.naver.com/hwaspc22/223869715458', via: 'quitrin' },
   // 공식 안내 (과목 체계)
   goeCourses: { publisher: '경기고교학점제 지원센터', title: '고등학교 과목 안내 (2022 개정 교육과정)', date: '', url: 'https://more.goe.go.kr/hagjeomje/subList/30300002205' },

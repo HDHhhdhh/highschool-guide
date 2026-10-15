@@ -12,7 +12,6 @@ const ARTICLES: { topic: string; id: RefId }[] = [
   { topic: '성취도·내신 지표 해석', id: 'schoolinfoA' },
   { topic: '고교학점제 과목 선택', id: 'faqChoice' },
   { topic: '심화 수학을 확인할 때', id: 'faqGeometry' },
-  { topic: '설명회에서 더 확인할 정보', id: 'sessionChecklist' },
 ];
 const EMPTY_RESULTS: Result[] = [];
 
@@ -114,7 +113,6 @@ export function SchoolInfo() {
             </> : <p>{s.city === '파주시' ? ADMISSION.paju.selection : '외고·국제고·예술고·특성화고 등은 학교별 전형입니다. 모집 요강을 별도로 확인하세요.'}</p>}
             <a href={source} target="_blank" rel="noreferrer" className="text-primary-deep underline">출처: 교육청 공식 배정·전형 안내 ↗</a>
           </div>
-          <CardShortcut target="article-sessionChecklist">교빛 · 설명회에서 더 확인할 정보</CardShortcut>
         </Disclosure>
 
         <Disclosure id="school-articles" title="함께 보면 좋은 교빛 기사">

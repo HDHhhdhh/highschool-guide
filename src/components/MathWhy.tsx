@@ -1,4 +1,4 @@
-// 홈 상단 '왜 고교 선택에 수학이 핵심인가' — 이 설명회가 고등학교를 수학 관점으로 보는 이유를 세 가지 근거로 짧게 밝힌다.
+// 홈 상단 '왜 고교 선택에 수학이 핵심인가' — 고등학교를 수학 관점으로 보는 이유를 세 가지 근거로 짧게 밝힌다.
 // 첫 수치는 이 사이트 데이터(2026학년도 NEIS 시간표)에서 바로 계산하고, 나머지는 원문을 확인한 기사로 출처를 단다.
 import { ArrowDown, BookOpen, ChartColumn, GraduationCap } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -48,7 +48,7 @@ const REASONS: Reason[] = [
 export function MathWhy({ onGuide }: { onGuide: () => void }) {
   return (
     <section id="why-math" aria-labelledby="why-math-title" className="rounded-2xl border bg-card p-5 shadow-card sm:p-8">
-      <p className="text-sm font-semibold text-primary-deep">설명회 핵심 · 5A 수학 관점</p>
+      <p className="text-sm font-semibold text-primary-deep">5A 수학 관점</p>
       <h2 id="why-math-title" className="mt-1 text-2xl font-bold tracking-tight text-navy">고교 선택에 왜 수학이 핵심인가</h2>
       <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-muted-foreground">
         고교학점제에서는 학교마다 여는 수학 과목, 내신 시험의 난이도와 평가 방식, 진학 지도가 다릅니다.
@@ -78,7 +78,7 @@ export function MathWhy({ onGuide }: { onGuide: () => void }) {
 
       <div className="mt-4 flex flex-col gap-3 rounded-xl bg-navy-soft px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p className="text-sm leading-relaxed text-foreground/85">
-          그래서 이 설명회는 고등학교를 <b className="font-semibold text-navy">수학 공부 환경</b>으로 봅니다. 어떤 수학 과목을 열고, 내신 경쟁은 어떤지,
+          고등학교를 <b className="font-semibold text-navy">수학 공부 환경</b>으로 살펴보세요. 어떤 수학 과목을 열고, 내신 경쟁은 어떤지,
           진학으로 어떻게 이어지는지를 아래 가이드와 학교 정보에서 이어서 확인하세요.
         </p>
         <Button variant="outline" size="sm" className="h-10 shrink-0 rounded-lg bg-card" onClick={onGuide}>
