@@ -11,7 +11,7 @@ export const BANDS: Band[] = [
 ];
 
 export interface Track { label: string; kw: string[]; stem?: boolean; lang?: boolean; arts?: boolean; job?: boolean }
-// 'A|B' = 2015·2022 개정 교육과정에서 같은 역할을 하는 과목 묶음 (하나만 있어도 개설로 봄)
+// 'A|B' = 같은 역할을 하는 과목명 묶음 (1·2학년 시간표에 하나만 있어도 개설로 봄)
 export const TRACKS: Record<string, Track> = {
   med: { label: '의약·보건', stem: true, kw: ['화학', '생명과학', '화학Ⅱ|화학 반응의 세계|물질과 에너지', '생명과학Ⅱ|세포와 물질대사|생물의 유전', '미적분', '확률과 통계', '보건'] },
   eng: { label: '공학', stem: true, kw: ['물리학', '물리학Ⅱ|역학과 에너지|전자기와 양자', '미적분', '기하', '정보', '공학|인공지능 수학'] },

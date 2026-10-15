@@ -124,8 +124,6 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
         <dl className="mt-3 grid grid-cols-1 gap-x-3 gap-y-2.5 text-sm sm:grid-cols-[7rem_1fr]">
           <dt className="font-semibold text-foreground/80">2학년 수학 <span className="block text-xs font-normal text-muted-foreground">2022 개정</span></dt>
           <dd>{curriculum ? <CourseChips list={curriculum['2']} /> : <span className="text-muted-foreground">시간표 자료 없음</span>}</dd>
-          <dt className="font-semibold text-foreground/80">3학년 수학 <span className="block text-xs font-normal text-muted-foreground">2015 개정·참고</span></dt>
-          <dd>{curriculum ? <CourseChips list={curriculum['3']} /> : <span className="text-muted-foreground">시간표 자료 없음</span>}</dd>
           <dt className="font-semibold text-foreground/80">수학 성취도</dt>
           <dd className="leading-relaxed">{r.ach?.core.수학
             ? <>{r.ach.label} 1학년 {r.ach.core.수학.name} 평균 <b className="tnum">{r.ach.core.수학.avg}점</b> · A 비율 <b className="tnum">{r.ach.core.수학.A}%</b> <span className="text-xs text-muted-foreground">(학교알리미 공시)</span></>

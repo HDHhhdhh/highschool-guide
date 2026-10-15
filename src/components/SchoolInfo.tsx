@@ -49,10 +49,10 @@ export function SchoolInfo() {
 
         <Disclosure id="school-math" title="수학 선택·심화 과목 편제">
           <dl className="space-y-3 text-sm">
-            {(['2', '3'] as const).map(year => <div key={year}>
-              <dt className="font-semibold">{year}학년 수학 · {year === '2' ? '2022 개정' : '2015 개정·참고'}</dt>
-              <dd className="mt-1 flex flex-wrap gap-1.5">{curriculum ? curriculum[year].map(c => <span key={c.name} className="rounded-full border bg-secondary/40 px-2 py-1">{c.name}</span>) : '시간표 자료 미확보'}</dd>
-            </div>)}
+            <div>
+              <dt className="font-semibold">2학년 수학 · 2022 개정</dt>
+              <dd className="mt-1 flex flex-wrap gap-1.5">{curriculum ? curriculum['2'].map(c => <span key={c.name} className="rounded-full border bg-secondary/40 px-2 py-1">{c.name}</span>) : '시간표 자료 미확보'}</dd>
+            </div>
           </dl>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{COURSE_CAVEAT} 과목 개설 폭은 수업의 질이나 수학 실력을 뜻하지 않습니다.</p>
           <div className="flex flex-col items-start">

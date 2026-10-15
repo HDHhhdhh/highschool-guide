@@ -105,7 +105,8 @@ for (const e of index.schools) {
     mvout: n.transfers?.out ?? null,
     lat: n.coordinates?.lat ?? null,
     lng: n.coordinates?.lng ?? null,
-    subjects: n.coursesByGrade || null,
+    // 2026학년도 2022 개정 교육과정에 해당하는 1·2학년 과목만 번들한다.
+    subjects: n.coursesByGrade ? Object.fromEntries(Object.entries(n.coursesByGrade).filter(([grade]) => grade === '1' || grade === '2')) : null,
     achData: achData(n.achievement),
   });
 }
