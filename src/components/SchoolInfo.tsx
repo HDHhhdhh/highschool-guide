@@ -71,7 +71,7 @@ export function SchoolInfo() {
 
         <Disclosure title="진학·졸업생 정보">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs"><caption className="mb-2 text-left">졸업생 진로 공시 · 비율(%)</caption><thead><tr>{['연도', '졸업생', '4년제', '전문대', '해외', '취업', '기타'].map(label => <th key={label} className="p-2 whitespace-nowrap">{label}</th>)}</tr></thead><tbody>{Object.entries(s.career ?? {}).sort().map(([year, c]) => <tr key={year} className="border-t">{[year, c.n, c.univ, c.college, c.abroad, c.job, c.etc].map((value, i) => <td key={i} className="p-2">{value ?? '-'}</td>)}</tr>)}</tbody></table>
+            <table className="w-full whitespace-nowrap text-left text-xs"><caption className="mb-2 text-left">졸업생 진로 공시 · 비율(%)</caption><thead><tr>{['연도', '졸업생', '4년제', '전문대', '해외', '취업', '기타'].map(label => <th key={label} className="p-2 whitespace-nowrap">{label}</th>)}</tr></thead><tbody>{Object.entries(s.career ?? {}).sort().map(([year, c]) => <tr key={year} className="border-t">{[year, c.n, c.univ, c.college, c.abroad, c.job, c.etc].map((value, i) => <td key={i} className="p-2">{value ?? '-'}</td>)}</tr>)}</tbody></table>
           </div>
           {!s.career && <p className="text-sm">졸업생 진로 공시 자료 미확보</p>}
           <p className="mt-2 text-xs text-muted-foreground">‘기타’에는 재수와 미진학이 섞여 있어 재수율이 아닙니다. 진학률만으로 학교 실력을 판단할 수 없습니다.</p>

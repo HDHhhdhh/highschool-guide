@@ -2,7 +2,7 @@
 // 결과 화면에서만 쓰이므로 Results 에서 지연 로드하고, 지도 스크립트도 이 지도가 처음 열릴 때 불러온다.
 // 스크립트를 못 불러오거나 인증에 실패하면(허용 도메인 밖 등) 번들 좌표로 그린 위치 개요도로 대신 보여 준다.
 import { ExternalLink, Maximize2, Navigation } from 'lucide-react';
-import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Component, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { GEO, SCHOOLS } from '../data';
 import { distanceKm, type Point, type Result, type School } from '../engine';
 import { kakaoDirectionsUrl, naverMapUrl } from '../lib/directions';
@@ -46,6 +46,7 @@ export default function MiniMap(props: MiniMapProps) {
 }
 
 function MapSection({ results, origin, originLabel, homeIsDong, initialSchoolId }: MiniMapProps) {
+  const mapId = useId();
   const [homeKey, setHomeKey] = useState(ORIGIN);
   const [schoolId, setSchoolId] = useState(initialSchoolId ?? results[0]?.school.id ?? SCHOOLS[0].id);
   const [status, setStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
@@ -162,7 +163,11 @@ function MapSection({ results, origin, originLabel, homeIsDong, initialSchoolId 
     const s = pts.find(x => x.id === id);
     const map = mapRef.current;
     if (!s || !map) return;
-    map.fitBounds(home ? [latLng(s), latLng(home)] : [latLng(s)], { top: 64, right: 56, bottom: 56, left: 56, maxZoom: 15 });
+    if (home) map.fitBounds([latLng(s), latLng(home)], { top: 64, right: 56, bottom: 56, left: 56, maxZoom: 15 });
+    else {
+      map.setCenter(latLng(s));
+      map.setZoom(15);
+    }
   };
 
   return (
@@ -180,9 +185,9 @@ function MapSection({ results, origin, originLabel, homeIsDong, initialSchoolId 
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div>
-          <label id="map-home-label" className="mb-1.5 block text-sm font-medium">집 위치 · 사는 동</label>
+          <label id={`${mapId}-home-label`} className="mb-1.5 block text-sm font-medium">집 위치 · 사는 동</label>
           <Select value={homeKey} onValueChange={setHomeKey}>
-            <SelectTrigger aria-labelledby="map-home-label" className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger aria-labelledby={`${mapId}-home-label`} className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value={ORIGIN}>입력한 위치: {originLabel}</SelectItem>
               {GEO.sggs.map(sgg => GEO.dongs.filter(d => d.sgg === sgg).map(d => <SelectItem key={`${sgg}/${d.name}`} value={`${sgg}/${d.name}`}>{sgg} {d.name}</SelectItem>))}
@@ -190,9 +195,9 @@ function MapSection({ results, origin, originLabel, homeIsDong, initialSchoolId 
           </Select>
         </div>
         <div>
-          <label id="map-school-label" className="mb-1.5 block text-sm font-medium">학교 선택 · 지도에서 눌러도 됩니다</label>
+          <label id={`${mapId}-school-label`} className="mb-1.5 block text-sm font-medium">학교 선택 · 지도에서 눌러도 됩니다</label>
           <Select value={schoolId} onValueChange={pick}>
-            <SelectTrigger aria-labelledby="map-school-label" className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger aria-labelledby={`${mapId}-school-label`} className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {[...pts].sort((a, b) => (ranks.get(a.id) ?? 999) - (ranks.get(b.id) ?? 999) || a.name.localeCompare(b.name, 'ko')).map(s => (
                 <SelectItem key={s.id} value={s.id}>{ranks.get(s.id) ? `${ranks.get(s.id)}위 · ` : ''}{s.short} ({s.sgg})</SelectItem>
