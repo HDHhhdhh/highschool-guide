@@ -27,7 +27,7 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
   const set = <K extends keyof FinderState>(k: K, v: FinderState[K]) => setF(s => ({ ...s, [k]: v }));
 
   const dongs = GEO.dongs.filter(d => d.sgg === f.sgg);
-  const middles = GEO.middle.filter(m => m.sgg === f.sgg);
+  const middles = GEO.middle;
   const interestOptions = SCHOOLS.filter(s => !f.interest.includes(s.id));
 
   // 희망 계열은 여러 개 고를 수 있다 (다시 누르면 빠짐). 취업·기술을 고르면 특성화고를 함께 고려 유형에 넣는다
@@ -66,7 +66,7 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
         <form onSubmit={submit} autoComplete="off" className="flex flex-col gap-7">
           <FieldBlock num={1} label="사는 지역" required hint="고양시 3개 구만 지원합니다. 동을 고르면 통학 거리를 더 정확히 계산합니다.">
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Select value={f.sgg} onValueChange={v => setF(s => ({ ...s, sgg: v, dong: '', middle: '' }))}>
+              <Select value={f.sgg} onValueChange={v => setF(s => ({ ...s, sgg: v, dong: '' }))}>
                 <SelectTrigger aria-label="구" className="h-12! w-full rounded-lg text-[0.9375rem]"><SelectValue placeholder="구" /></SelectTrigger>
                 <SelectContent>{GEO.sggs.map(g => <SelectItem key={g} value={g}>고양시 {g}</SelectItem>)}</SelectContent>
               </Select>
@@ -85,7 +85,7 @@ export function FinderForm({ initial, onSubmit }: { initial: FinderState; onSubm
               <SelectTrigger aria-label="다니는 중학교" className="h-12! w-full rounded-lg text-[0.9375rem]"><SelectValue placeholder="중학교 (선택)" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value={NONE}>중학교 (선택)</SelectItem>
-                {middles.map(m => <SelectItem key={m.name} value={m.name}>{m.name}</SelectItem>)}
+                {middles.map(m => <SelectItem key={m.name} value={m.name}>{m.name} ({m.sgg})</SelectItem>)}
               </SelectContent>
             </Select>
           </FieldBlock>

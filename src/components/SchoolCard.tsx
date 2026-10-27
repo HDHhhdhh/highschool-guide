@@ -2,6 +2,7 @@ import { ChevronDown, ExternalLink, MessageSquareQuote, Navigation } from 'lucid
 import { useState } from 'react';
 import { REVIEWS } from '../data';
 import { COMPONENT_LABEL, COURSE_CAVEAT, explain, fmt, gradeLetter, mathCurriculum, scoreBasis, type CompKey, type MathCourse, type Profile, type Result } from '../engine';
+import { achProfile } from '../engine/achievement';
 import { kakaoDirectionsUrl, naverMapUrl } from '../lib/directions';
 import { IndicatorNote } from './IndicatorNote';
 import { Disclosure } from './Disclosure';
@@ -38,6 +39,8 @@ function CourseChips({ list }: { list: MathCourse[] }) {
 export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: number; profile: Profile; rankOf: Partial<Record<CompKey, number>>; n: number }) {
   const [open, setOpen] = useState(false);
   const s = r.school;
+  // 비교에서 제외한 직업계 성취도도 확보한 원자료는 표시한다.
+  const ach = r.ach ?? achProfile(s);
   const { pros, cons } = explain(r, profile);
   const basis = scoreBasis(r, profile, rankOf, n);
   const grade = r.gradeLo == null ? null : r.gradeLo === r.gradeHi ? `${r.gradeLo}등급` : `${r.gradeLo}~${r.gradeHi}등급`;
@@ -93,7 +96,7 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
         )}
         {s.designations.map(d => <Badge key={d.kind} className={tone.info} title={`${d.kind} · 근거: ${d.evidence ?? '공시 문서'}`}>{d.label}</Badge>)}
         {r.flags.achievement
-          ? <Badge className={tone.good} title="학교알리미 교과별 학업성취 자료를 반영">성취도 확보 · {r.ach?.label}</Badge>
+          ? <Badge className={tone.good} title="학교알리미 교과별 학업성취 자료를 반영">성취도 확보 · {ach?.label}</Badge>
           : (r.group === 'general' || r.selective) && <Badge className={tone.warn} title="과목별 성취도(A~E)를 확보하지 못해 공시 지표로 추정">성적분포 미확보 · 공시 지표 추정</Badge>}
         {!r.flags.career && <Badge variant="outline">진로 데이터 없음</Badge>}
         {!r.assign.assignable && <Badge className={tone.bad}>거주 학군 밖 · 배정 대상 아님</Badge>}
@@ -125,8 +128,8 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
           <dt className="font-semibold text-foreground/80">2학년 수학 <span className="block text-xs font-normal text-muted-foreground">2022 개정</span></dt>
           <dd>{curriculum ? <CourseChips list={curriculum['2']} /> : <span className="text-muted-foreground">시간표 자료 없음</span>}</dd>
           <dt className="font-semibold text-foreground/80">수학 성취도</dt>
-          <dd className="leading-relaxed">{r.ach?.core.수학
-            ? <>{r.ach.label} 1학년 {r.ach.core.수학.name} 평균 <b className="tnum">{r.ach.core.수학.avg}점</b> · A 비율 <b className="tnum">{r.ach.core.수학.A}%</b> <span className="text-xs text-muted-foreground">(학교알리미 공시)</span></>
+          <dd className="leading-relaxed">{ach?.core.수학
+            ? <>{ach.label} 1학년 {ach.core.수학.name} 평균 <b className="tnum">{ach.core.수학.avg}점</b> · A 비율 <b className="tnum">{ach.core.수학.A}%</b> <span className="text-xs text-muted-foreground">(학교알리미 공시)</span></>
             : <span className="text-muted-foreground">미확보 — 학교알리미 교과별 성취도를 수집하지 못했습니다</span>}</dd>
           {myMath && <>
             <dt className="font-semibold text-foreground/80">우리 아이 수학</dt>
@@ -221,13 +224,13 @@ export function SchoolCard({ r, rank, profile, rankOf, n }: { r: Result; rank: n
             <p className="mt-1 text-xs text-muted-foreground">'기타'에는 재수와 미진학이 섞여 있어 재수율로 해석하면 안 됩니다.</p>
           </section>
 
-          {r.ach && (
+          {ach && (
             <section>
-              <h4 className="mb-2 text-sm font-semibold text-primary-deep">1학년 주요 과목 성취도 ({r.ach.label})</h4>
+              <h4 className="mb-2 text-sm font-semibold text-primary-deep">1학년 주요 과목 성취도 ({ach.label})</h4>
               <Table className="text-xs tnum">
                 <TableHeader><TableRow><TableHead>과목</TableHead><TableHead className="text-right">평균</TableHead>{['A', 'B', 'C', 'D', 'E'].map(g => <TableHead key={g} className="text-right">{g}</TableHead>)}</TableRow></TableHeader>
                 <TableBody>
-                  {Object.entries(r.ach.core).map(([k, x]) => x && (
+                  {Object.entries(ach.core).map(([k, x]) => x && (
                     <TableRow key={k}><TableCell>{k} <span className="text-muted-foreground">({x.name})</span></TableCell><TableCell className="text-right">{x.avg}</TableCell><TableCell className="text-right">{x.A}%</TableCell><TableCell className="text-right">{x.B}%</TableCell><TableCell className="text-right">{x.C}%</TableCell><TableCell className="text-right">{x.D}%</TableCell><TableCell className="text-right">{x.E}%</TableCell></TableRow>
                   ))}
                 </TableBody>
